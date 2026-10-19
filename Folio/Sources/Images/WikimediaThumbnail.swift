@@ -10,9 +10,23 @@ enum ThumbnailWidth {
     static let tile = 500
     /// Reader hero, full screen width.
     static let hero = 1280
+    /// Lightbox: sharp at 3x and through a first zoom, and a bounded download
+    /// per page when swiping through an article's pictures.
+    static let lightbox = 1920
 }
 
 extension URL {
+    /// The file a Wikimedia image URL shows, whichever rendering it is:
+    /// `…/thumb/a/ab/Foo.jpg/640px-Foo.jpg` and `…/a/ab/Foo.jpg` are both
+    /// `Foo.jpg`. How a tap on the page finds its picture in the media list.
+    var wikimediaFileName: String {
+        let parts = pathComponents
+        if let thumb = parts.firstIndex(of: "thumb"), parts.count > thumb + 3 {
+            return parts[thumb + 3]
+        }
+        return lastPathComponent
+    }
+
     /// Rewrites the width segment of a Wikimedia thumbnail URL
     /// (`…/thumb/a/ab/Foo.jpg/320px-Foo.jpg` → `…/640px-Foo.jpg`). URLs without
     /// a `NNNpx-` filename prefix (originals, non-Wikimedia hosts) are returned

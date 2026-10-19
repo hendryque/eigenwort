@@ -7,7 +7,7 @@ struct ArticleImageGallery: View {
     let items: [MediaItem]
     let theme: Theme
 
-    @State private var lightbox: IdentifiedURL?
+    @State private var lightbox: LightboxRequest?
     @Environment(\.dismiss) private var dismiss
 
     private var leftItems: [MediaItem] {
@@ -51,15 +51,15 @@ struct ArticleImageGallery: View {
         }
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
-        .fullScreenCover(item: $lightbox) { wrapped in
-            ImageLightbox(url: wrapped.url, caption: wrapped.caption)
+        .fullScreenCover(item: $lightbox) { request in
+            ImageLightbox(request: request)
         }
     }
 
     @ViewBuilder
     private func thumbnail(_ item: MediaItem) -> some View {
         Button {
-            lightbox = IdentifiedURL(url: item.originalURL, caption: item.caption)
+            lightbox = LightboxRequest(items: items, start: item)
         } label: {
             RemoteImage(url: item.thumbnailURL) { phase in
                 switch phase {

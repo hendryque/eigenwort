@@ -23,7 +23,7 @@ struct ArticleReaderView: View {
     @State private var showTOC = false
     @State private var showGallery = false
     @State private var galleryItems: [MediaItem] = []
-    @State private var lightbox: IdentifiedURL?
+    @State private var lightbox: LightboxRequest?
     @State private var pendingScrollAnchor: String?
     @State private var alternateLink: LangLink?
     @State private var pushedArticle: ArticleDestination?
@@ -106,8 +106,8 @@ struct ArticleReaderView: View {
         .sheet(isPresented: $showGallery) {
             ArticleImageGallery(items: galleryItems, theme: theme)
         }
-        .fullScreenCover(item: $lightbox) { wrapped in
-            ImageLightbox(url: wrapped.url, caption: wrapped.caption)
+        .fullScreenCover(item: $lightbox) { request in
+            ImageLightbox(request: request)
         }
         .navigationDestination(item: $pushedArticle) { dest in
             ArticleReaderView(title: dest.title, language: dest.language ?? language, onSearch: onSearch)
@@ -162,7 +162,7 @@ struct ArticleReaderView: View {
                     initialScrollY: initialScrollY,
                     pendingScrollAnchor: $pendingScrollAnchor,
                     onSections: { sections = $0 },
-                    onImageTap: { lightbox = IdentifiedURL(url: $0, caption: $1) },
+                    onImageTap: { lightbox = LightboxRequest(tapped: $0, caption: $1, in: galleryItems) },
                     onFontScale: persistFontScale,
                     onInternalLink: { pushedArticle = $0 },
                     onScroll: handleScroll,
