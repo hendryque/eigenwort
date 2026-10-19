@@ -599,7 +599,7 @@ private struct BottomReaderToolbar: View {
         .background(theme.barBackground)
         .clipShape(Capsule())
         .overlay(
-            Capsule().stroke(theme.palette.hairlineColor, lineWidth: 0.75)
+            Capsule().stroke(theme.palette.hairlineColor, lineWidth: theme.palette.hasRim ? 1.5 : 0.75)
         )
         .padding(.horizontal, 28)
         .padding(.bottom, 12)

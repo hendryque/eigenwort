@@ -30,7 +30,7 @@ struct TopHeader: View {
                 Button(action: onRandomTap) {
                     Image(systemName: "shuffle")
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(theme.palette.inactiveStyle)
                         .frame(width: 24, height: 24)
                 }
                 .accessibilityLabel("Random article")
@@ -47,7 +47,7 @@ struct TopHeader: View {
                 Button(action: onSettingsTap) {
                     Image(systemName: "gearshape")
                         .font(.system(size: 17))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(theme.palette.inactiveStyle)
                 }
                 .accessibilityLabel("Settings")
             }
@@ -60,12 +60,13 @@ struct TopHeader: View {
         .overlay(alignment: .bottom) {
             Rectangle()
                 .fill(theme.palette.hairlineColor)
-                .frame(height: 0.5)
+                .frame(height: theme.palette.hasRim ? 2 : 0.5)
         }
     }
 }
 
 private struct SearchBar: View {
+    @Environment(\.folioTheme) private var theme
     @Binding var text: String
     @FocusState.Binding var focused: Bool
 
@@ -73,7 +74,7 @@ private struct SearchBar: View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 13))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(theme.palette.inactiveStyle)
             TextField("Search Wikipedia", text: $text)
                 .textFieldStyle(.plain)
                 .submitLabel(.search)
@@ -94,7 +95,15 @@ private struct SearchBar: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(Color(.tertiarySystemFill), in: Capsule())
+        .background {
+            if let edge = theme.palette.edge {
+                // Gimmick's oval: the logo's pale fill inside a blue rim.
+                Capsule().fill(theme.paper)
+                    .overlay(Capsule().strokeBorder(Color(rgb: edge), lineWidth: 1.5))
+            } else {
+                Capsule().fill(Color(.tertiarySystemFill))
+            }
+        }
     }
 }
 
@@ -129,7 +138,7 @@ private struct TabIconButton: View {
             VStack(spacing: 6) {
                 Image(systemName: tab.iconName)
                     .font(.system(size: 18, weight: isSelected ? .semibold : .regular))
-                    .foregroundStyle(isSelected ? theme.palette.accentColor : Color.secondary)
+                    .foregroundStyle(isSelected ? AnyShapeStyle(theme.palette.accentColor) : theme.palette.inactiveStyle)
                 Rectangle()
                     .fill(isSelected ? theme.palette.accentColor : Color.clear)
                     .frame(height: 2)

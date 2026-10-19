@@ -19,6 +19,8 @@ struct ParagraphMark: View {
     private static let stroke: CGFloat = 7, pitch: CGFloat = 14, gap: CGFloat = 4, width: CGFloat = 57
 
     var body: some View {
+        // Solid in a costume's edge colour: an opacity over yellow turns green.
+        let quiet = theme.palette.edge.map { Color(rgb: $0) } ?? theme.palette.secondaryColor.opacity(0.45)
         Canvas { context, _ in
             context.scaleBy(x: unit, y: unit)
             let hairline = 1 / unit
@@ -27,7 +29,7 @@ struct ParagraphMark: View {
                 for (index, word) in line.words.enumerated() {
                     let rect = CGRect(x: x, y: CGFloat(row) * Self.pitch, width: word, height: Self.stroke)
                     if (row, index) != Self.accent {
-                        context.fill(Path(rect), with: .color(theme.palette.secondaryColor.opacity(0.45)))
+                        context.fill(Path(rect), with: .color(quiet))
                     } else if isWordMissing {
                         context.stroke(
                             Path(rect.insetBy(dx: hairline / 2, dy: hairline / 2)),

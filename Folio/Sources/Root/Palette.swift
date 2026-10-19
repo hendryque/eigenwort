@@ -33,6 +33,14 @@ struct Palette: Sendable {
     var cardColor: Color { Color(rgb: card) }
     /// The edge chrome draws against the page: the header's foot, the reader's bar.
     var hairlineColor: Color { edge.map { Color(rgb: $0) } ?? secondaryColor.opacity(0.2) }
+    /// A costume's edge is a rim, drawn about twice as heavy as a hairline.
+    var hasRim: Bool { edge != nil }
+    /// The chrome's inactive ink: icons, tabs, the mark's quiet words. A
+    /// costume inks them solid in its edge colour, since blue at an opacity
+    /// over yellow turns green; the rest keep the system's secondary.
+    var inactiveStyle: AnyShapeStyle {
+        edge.map { AnyShapeStyle(Color(rgb: $0)) } ?? AnyShapeStyle(.secondary)
+    }
 
     /// The `:root` block the theme stylesheets used to carry.
     var cssVariables: String {

@@ -66,7 +66,7 @@ struct LoadFailureView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(theme.barBackground, in: shape)
-                    .overlay(shape.stroke(theme.palette.hairlineColor, lineWidth: 0.75))
+                    .overlay(shape.stroke(theme.palette.hairlineColor, lineWidth: theme.palette.hasRim ? 1.5 : 0.75))
             }
             .buttonStyle(.plain)
             .foregroundStyle(theme.palette.foregroundColor)
