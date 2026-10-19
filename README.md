@@ -1,9 +1,9 @@
-# Folio
+# Eigenwort
 
 V for Wikipedia by Frank Rausch was the nicest way to
 read Wikipedia on a phone. It was discontinued and pulled from the App Store
 in August 2022. I kept using my copy anyway, until Wikipedia changed
-something in their APIs and the Today view went blank. So I built Folio: a
+something in their APIs and the Today view went blank. So I built Eigenwort: a
 personal recreation of the parts I used every day. It is an homage, not a replacement. The original's polish took years. This took a few evenings, and it shows in places.
 
 <p align="center">
@@ -55,13 +55,14 @@ figures; tables and infoboxes keep lining tabular figures so columns align. A
 costume theme carries its own face and its own measurements, because size is
 chosen by x-height and not every face agrees about what a pixel is worth. The
 display title scales independently and stops at 120%, while body text keeps
-the full setting range. Folio restores each article's document language
+the full setting range. Eigenwort restores each article's document language
 before layout and applies locale-aware punctuation, so English and German
 hyphenation and quotation conventions stay distinct.
 
 ## Building
 
-You need Xcode 16 or newer and [XcodeGen](https://github.com/yonaskolb/XcodeGen):
+You need Xcode 16 or newer and [XcodeGen](https://github.com/yonaskolb/XcodeGen).
+The project and the repository keep the working title, Folio:
 
 ```
 cd Folio
@@ -92,7 +93,7 @@ can't promise a roadmap.
 ## Credits
 
 - V for Wikipedia by Frank Rausch (Raureif) is the
-  design Folio chases. Folio is not affiliated with Raureif.
+  design Eigenwort chases. Eigenwort is not affiliated with Raureif.
 - [Typographizer](https://github.com/frankrausch/Typographizer) by Frank
   Rausch, vendored under its MIT license.
 - [EB Garamond](https://github.com/octaviopardo/EBGaramond12) by Georg Duffner
@@ -102,7 +103,7 @@ can't promise a roadmap.
   under the SIL Open Font License 1.1. They stand in for Sentinel and Fakt in
   the De:Bug theme, which is a tribute and not affiliated with the magazine.
 - All content comes from [Wikipedia](https://www.wikipedia.org) via the
-  Wikimedia APIs and is licensed CC BY-SA. Folio is not affiliated with the
+  Wikimedia APIs and is licensed CC BY-SA. Eigenwort is not affiliated with the
   Wikimedia Foundation.
 
 [MIT](LICENSE)
