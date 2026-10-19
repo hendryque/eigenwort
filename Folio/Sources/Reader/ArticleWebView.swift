@@ -23,6 +23,9 @@ struct ArticleWebView: UIViewRepresentable {
     let heroFocalPoint: CGPoint?
     let theme: Theme
     let fontScale: Double
+    /// The reader's safe area, the app's header included: the page runs
+    /// beneath the header and starts below it.
+    let contentInsets: EdgeInsets
     let initialScrollY: Double
 
     @Binding var pendingScrollAnchor: String?
@@ -92,7 +95,7 @@ struct ArticleWebView: UIViewRepresentable {
         webView.isOpaque = false
         webView.backgroundColor = .clear
         webView.scrollView.backgroundColor = .clear
-        webView.scrollView.contentInsetAdjustmentBehavior = .automatic
+        webView.scrollView.contentInsetAdjustmentBehavior = .never
         webView.navigationDelegate = context.coordinator
         context.coordinator.webView = webView
         return webView
@@ -109,6 +112,16 @@ struct ArticleWebView: UIViewRepresentable {
         context.coordinator.onReady = onReady
         context.coordinator.onReload = onReload
         context.coordinator.initialScrollY = initialScrollY
+
+        let insets = UIEdgeInsets(top: contentInsets.top, left: 0, bottom: contentInsets.bottom, right: 0)
+        let scrollView = webView.scrollView
+        if scrollView.contentInset != insets {
+            // A page still at its top stays there when the inset arrives.
+            let atTop = scrollView.contentOffset.y <= -scrollView.contentInset.top + 1
+            scrollView.contentInset = insets
+            scrollView.verticalScrollIndicatorInsets = insets
+            if atTop { scrollView.contentOffset.y = -insets.top }
+        }
 
         // Stable hash deliberately excludes theme and fontScale so swapping themes
         // or pinching font size never reloads the document — both are applied via JS.
@@ -312,6 +325,16 @@ struct ArticleWebView: UIViewRepresentable {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
                 webView.evaluateJavaScript("window.folioRestoreScroll && window.folioRestoreScroll(\(y))")
             }
+            #if DEBUG
+            // `-screenshotReadDown 240` then reads on a little, for shots of
+            // the reader with its chrome away. Never set in a release build.
+            let readDown = UserDefaults.standard.double(forKey: "screenshotReadDown")
+            if readDown > 0 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                    webView.evaluateJavaScript("window.scrollBy(0, \(readDown))")
+                }
+            }
+            #endif
         }
 
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {

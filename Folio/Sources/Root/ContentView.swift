@@ -22,6 +22,7 @@ struct ContentView: View {
     @State private var forwardInProgress = false
     @State private var nearbyRecenterToken = UUID()
     @State private var showSettings = false
+    @State private var chrome = ReaderChrome()
     @FocusState private var searchFocused: Bool
 
     enum Tab: Hashable, CaseIterable {
@@ -47,20 +48,10 @@ struct ContentView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            TopHeader(
-                searchText: $searchText,
-                selectedTab: $selectedTab,
-                searchFocused: $searchFocused,
-                theme: theme,
-                language: language,
-                onLogoTap: tapLogo,
-                onLanguageToggle: toggleLanguage,
-                onRandomTap: tapRandom,
-                onSettingsTap: { showSettings = true },
-                onReselectTab: handleTabReselect
-            )
-
+        // The header lies over the content rather than above it, so an
+        // article can run beneath it and it can slide away while you read
+        // without the text reflowing. Every screen is inset by its height.
+        ZStack(alignment: .top) {
             // Active-tab NavigationStack is *always* mounted so its path
             // and in-flight article reader survive typing in the search bar.
             // Search results rise above it as an opaque overlay when
@@ -80,7 +71,35 @@ struct ContentView: View {
                 }
             }
             .animation(.easeInOut(duration: 0.18), value: isSearching)
+            .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: chrome.headerHeight) }
+
+            // Under the clock once the header has gone, so text never runs into it.
+            Color.clear.frame(height: 0).background(theme.paper, ignoresSafeAreaEdges: .top)
+
+            TopHeader(
+                searchText: $searchText,
+                selectedTab: $selectedTab,
+                searchFocused: $searchFocused,
+                theme: theme,
+                language: language,
+                onLogoTap: tapLogo,
+                onLanguageToggle: toggleLanguage,
+                onRandomTap: tapRandom,
+                onSettingsTap: { showSettings = true },
+                onReselectTab: handleTabReselect
+            )
+            .offset(y: chrome.isHeaderHidden ? -chrome.headerHeight : 0)
+            .opacity(chrome.isHeaderHidden ? 0 : 1)
+            .allowsHitTesting(!chrome.isHeaderHidden)
+            .animation(.easeOut(duration: 0.22), value: chrome.isHeaderHidden)
+            // Outside the offset, so this is where the header rests, not where
+            // it has slid to: the reader's padding must not follow it away.
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: {
+                chrome.headerHeight = $0.height
+                chrome.headerBottom = $0.maxY
+            }
         }
+        .environment(chrome)
         // A sheet takes the environment where it is attached, so this stays
         // inside the theme modifiers or Settings falls back to Light.
         .sheet(isPresented: $showSettings) { SettingsView() }

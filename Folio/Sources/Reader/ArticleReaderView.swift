@@ -10,6 +10,7 @@ struct ArticleReaderView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(ReaderChrome.self) private var chrome: ReaderChrome?
     @Query private var bookmarks: [Bookmark]
     @Query private var settingsList: [AppSettings]
 
@@ -33,6 +34,8 @@ struct ArticleReaderView: View {
     @State private var reloadToken = UUID()
     @State private var initialScrollY: Double = 0
     @State private var toolbarReveal = ToolbarReveal()
+    @State private var safeInsets = EdgeInsets()
+    @State private var readerTop: CGFloat = 0
     @State private var refreshTask: Task<Void, Never>?
     @State private var activeSectionAnchor: String?
 
@@ -66,11 +69,22 @@ struct ArticleReaderView: View {
             }
         }
         .animation(.easeInOut(duration: 0.28), value: contentPhase)
+        .onGeometryChange(for: EdgeInsets.self) { $0.safeAreaInsets } action: { safeInsets = $0 }
         .overlay(alignment: .topLeading) {
+            // Rises with the header, so it stays just under the clock.
             FloatingBackButton {
                 dismiss()
             }
+            .offset(y: chrome?.isHeaderHidden == true ? -(chrome?.headerHeight ?? 0) : 0)
+            .animation(.easeOut(duration: 0.22), value: chrome?.isHeaderHidden)
         }
+        // Down to the header's edge; measured outside the padding, so the
+        // padding cannot move what it is measured from.
+        .safeAreaPadding(.top, max(0, (chrome?.headerBottom ?? 0) - readerTop))
+        .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: { readerTop = $0 }
+        // The app's header goes and comes back on the bar's rule.
+        .onChange(of: toolbarReveal.isVisible) { _, isVisible in chrome?.isHeaderHidden = !isVisible }
+        .onAppear { chrome?.isHeaderHidden = !toolbarReveal.isVisible }
         // Keep the nav bar present-but-invisible so UIKit's interactive pop
         // (swipe-from-leading-edge) still works. `.toolbar(.hidden)` removes the bar
         // entirely and disables the gesture.
@@ -115,6 +129,7 @@ struct ArticleReaderView: View {
         }
         .onDisappear {
             refreshTask?.cancel()
+            chrome?.isHeaderHidden = false
         }
     }
 
@@ -143,6 +158,7 @@ struct ArticleReaderView: View {
                     heroFocalPoint: heroFocalPoint,
                     theme: theme,
                     fontScale: fontScale,
+                    contentInsets: safeInsets,
                     initialScrollY: initialScrollY,
                     pendingScrollAnchor: $pendingScrollAnchor,
                     onSections: { sections = $0 },
