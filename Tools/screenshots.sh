@@ -2,23 +2,26 @@
 
 # Regenerates docs/screenshots/*.png. The app's DEBUG launch hooks land it in an
 # exact state, so there is no UI-test navigation to keep working. Needs Python
-# with Pillow, pngquant and oxipng. Usage: Tools/screenshots.sh ["iPhone 16"]
+# with Pillow, pngquant and oxipng. Usage: Tools/screenshots.sh ["iPhone 17 Pro"]
 set -euo pipefail
 
-SIM="${1:-iPhone 16}"
+NAME="${1:-iPhone 17 Pro}"
+# By ID: a name can match a simulator whose runtime is gone as well.
+SIM=$(xcrun simctl list devices available | /usr/bin/grep -F "    $NAME (" | /usr/bin/head -1 | /usr/bin/grep -oE '[0-9A-F-]{36}')
+[ -n "$SIM" ] || { echo "No available simulator named $NAME" >&2; exit 1; }
 BUNDLE="me.scott.folio"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 RAW="$(/usr/bin/mktemp -d)"
 trap 'rm -rf "$RAW"' EXIT
 
-echo "Building for ${SIM}…"
+echo "Building for ${NAME}…"
 cd "$ROOT/Folio"
 xcodebuild -project Folio.xcodeproj -scheme Folio -configuration Debug \
-    -destination "platform=iOS Simulator,name=$SIM" build >/dev/null
+    -destination "id=$SIM" build >/dev/null
 # The destination matters here too: without it this resolves to the device
 # build directory and the install fails with a device slice.
 APP=$(xcodebuild -project Folio.xcodeproj -scheme Folio -configuration Debug \
-    -destination "platform=iOS Simulator,name=$SIM" \
+    -destination "id=$SIM" \
     -showBuildSettings 2>/dev/null | /usr/bin/awk '/ BUILT_PRODUCTS_DIR =/{print $3}' | /usr/bin/head -1)/Folio.app
 
 xcrun simctl boot "$SIM" 2>/dev/null || true
@@ -61,7 +64,7 @@ OUT.mkdir(parents=True, exist_ok=True)
 # The README's look, not a device bezel: status bar cropped, rounded card, soft
 # shadow on transparency. Measured off the shipped files; change one number and
 # the whole set needs retaking or it stops matching.
-STATUS_BAR = 171
+STATUS_BAR = 181  # iPhone 17 Pro: 65px below the clock, as 171 was on the iPhone 16
 BASE_CARD = 440
 BASE_MARGIN, BASE_RADIUS, BASE_BLUR, BASE_DROP = 26, 10, 12, 3
 SHADOW_ALPHA = 18
