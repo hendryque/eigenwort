@@ -108,11 +108,12 @@ h1, h2, h3, h4, h5, h6, .folio-title {
     text-shadow: 0 1px 12px rgba(0,0,0,0.45);
 }
 
-/* Article with no hero image — plain large italic title above the body */
+/* Article with no hero image — plain large italic title above the body.
+   The top margin clears the floating back button (8pt + 40pt). */
 .folio-header-textonly {
     aspect-ratio: auto;
     background: none;
-    margin: 0 0 20px 0;
+    margin: 40px 0 20px 0;
     display: block;
 }
 .folio-header-textonly::after { display: none; }

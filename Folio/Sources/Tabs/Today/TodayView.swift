@@ -8,7 +8,7 @@ struct TodayView: View {
     @Environment(\.modelContext) private var modelContext
 
     @State private var feed: FeaturedFeed?
-    @State private var loadingError: String?
+    @State private var failure: LoadFailure?
     @State private var lastFetched: Date?
     @State private var isLoading = false
 
@@ -33,8 +33,9 @@ struct TodayView: View {
                     }
                 }
                 .scrollContentBackground(.hidden)
-            } else if let message = loadingError {
-                TodayErrorView(message: message) { Task { await refresh() } }
+            } else if let failure {
+                LoadFailureView(headline: "Couldn't load Today", failure: failure) { Task { await refresh() } }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ProgressView()
                     .controlSize(.large)
@@ -81,7 +82,7 @@ struct TodayView: View {
         guard !isLoading else { return }
         isLoading = true
         defer { isLoading = false }
-        loadingError = nil
+        failure = nil
         do {
             let fetched = try await WikipediaClient.shared.featured(language: language)
             feed = fetched
@@ -96,33 +97,12 @@ struct TodayView: View {
             )
             ArticlePrefetcher.prefetch(upcoming, language: language, context: modelContext)
         } catch {
-            loadingError = error.localizedDescription
+            failure = LoadFailure(error)
         }
     }
 
     private var isStale: Bool {
         guard let lastFetched else { return true }
         return Date.now.timeIntervalSince(lastFetched) > 6 * 3600
-    }
-}
-
-struct TodayErrorView: View {
-    let message: String
-    let retry: () -> Void
-
-    var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "exclamationmark.triangle")
-                .font(.title)
-                .foregroundStyle(.secondary)
-            Text(message)
-                .font(.callout)
-                .multilineTextAlignment(.center)
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 32)
-            Button("Try again", action: retry)
-                .buttonStyle(.borderedProminent)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }

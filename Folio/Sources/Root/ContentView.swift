@@ -103,7 +103,7 @@ struct ContentView: View {
             NavigationStack(path: $todayPath) {
                 TodayView()
                     .toolbar(.hidden, for: .navigationBar)
-                    .articleDestination(language: language)
+                    .articleDestination(language: language, onSearch: rerunSearch)
                     .background(ForwardGestureEnabler(
                         onForward: { goForward(.today) },
                         isEnabled: !todayForward.isEmpty
@@ -114,7 +114,7 @@ struct ContentView: View {
             NavigationStack(path: $historyPath) {
                 HistoryView(onRerunSearch: rerunSearch)
                     .toolbar(.hidden, for: .navigationBar)
-                    .articleDestination(language: language)
+                    .articleDestination(language: language, onSearch: rerunSearch)
                     .background(ForwardGestureEnabler(
                         onForward: { goForward(.history) },
                         isEnabled: !historyForward.isEmpty
@@ -125,7 +125,7 @@ struct ContentView: View {
             NavigationStack(path: $bookmarksPath) {
                 BookmarksView()
                     .toolbar(.hidden, for: .navigationBar)
-                    .articleDestination(language: language)
+                    .articleDestination(language: language, onSearch: rerunSearch)
                     .background(ForwardGestureEnabler(
                         onForward: { goForward(.bookmarks) },
                         isEnabled: !bookmarksForward.isEmpty
@@ -136,7 +136,7 @@ struct ContentView: View {
             NavigationStack(path: $nearbyPath) {
                 NearbyView(recenterToken: nearbyRecenterToken)
                     .toolbar(.hidden, for: .navigationBar)
-                    .articleDestination(language: language)
+                    .articleDestination(language: language, onSearch: rerunSearch)
                     .background(ForwardGestureEnabler(
                         onForward: { goForward(.nearby) },
                         isEnabled: !nearbyForward.isEmpty
@@ -282,6 +282,7 @@ private struct SearchResultsList: View {
 
     @Environment(\.modelContext) private var modelContext
     @State private var results: [SearchResult] = []
+    @State private var failure: LoadFailure?
     @State private var fetchTask: Task<Void, Never>?
 
     var body: some View {
@@ -301,6 +302,11 @@ private struct SearchResultsList: View {
             }
         }
         .listStyle(.plain)
+        .overlay {
+            if let failure, results.isEmpty {
+                LoadFailureView(headline: "Couldn't search Wikipedia", failure: failure) { scheduleSearch(query) }
+            }
+        }
         .background(theme.paper)
         // Results depend on query AND language: the EN/DE toggle must refetch,
         // and stale other-language rows must not linger while it does.
@@ -332,6 +338,7 @@ private struct SearchResultsList: View {
 
     private func scheduleSearch(_ raw: String) {
         fetchTask?.cancel()
+        failure = nil
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             results = []
@@ -347,6 +354,7 @@ private struct SearchResultsList: View {
             } catch {
                 guard !Task.isCancelled else { return }
                 results = []
+                failure = LoadFailure(error)
             }
         }
     }
@@ -422,9 +430,9 @@ extension ContentView {
 }
 
 extension View {
-    func articleDestination(language: String) -> some View {
+    func articleDestination(language: String, onSearch: @escaping (String) -> Void) -> some View {
         navigationDestination(for: ArticleDestination.self) { destination in
-            ArticleReaderView(title: destination.title, language: destination.language ?? language)
+            ArticleReaderView(title: destination.title, language: destination.language ?? language, onSearch: onSearch)
                 .background(PopGestureEnabler())
         }
     }

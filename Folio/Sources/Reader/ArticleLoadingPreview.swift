@@ -33,12 +33,7 @@ struct ArticleLoadingPreview: View {
                     if let url = summary.imageURL(width: ThumbnailWidth.hero) {
                         hero(url: url)
                     } else {
-                        Text(displayTitle)
-                            .font(.custom(theme.titleFontName, size: textOnlyTitleSize, relativeTo: .largeTitle))
-                            .foregroundStyle(.primary)
-                            .padding(.horizontal, 20)
-                            .padding(.top, 20)
-                            .padding(.bottom, 16)
+                        ArticleTitle(title: displayTitle, theme: theme, fontScale: fontScale)
                     }
 
                     if summary.extract != nil {
@@ -88,12 +83,7 @@ struct ArticleLoadingPreview: View {
         summary.title.replacingOccurrences(of: "_", with: " ")
     }
 
-    /// Keep preview title sizes identical to article.css. Display scaling
-    /// follows the reader setting only to 120%, while body text keeps the
-    /// full configured scale range.
-    private var titleScale: Double { min(max(fontScale, 0.85), 1.2) }
-    private var heroTitleSize: Double { theme.heroTitleSize * titleScale }
-    private var textOnlyTitleSize: Double { theme.textOnlyTitleSize * titleScale }
+    private var heroTitleSize: Double { theme.heroTitleSize * ArticleTitle.scale(fontScale) }
 
     /// article.css body, whose size and leading come from Theme. SwiftUI's lineSpacing is
     /// *extra* points on top of the font's natural leading — subtract it, or
@@ -194,6 +184,31 @@ struct ArticleLoadingPreview: View {
             )
         }
     }
+}
+
+/// An article's title as article.css sets it without a lead image. The
+/// preview shows it while loading, the error page keeps it above the failure.
+struct ArticleTitle: View {
+    let title: String
+    let theme: Theme
+    let fontScale: Double
+
+    /// Display sizes follow the reader setting only to 120%, while body text
+    /// keeps the full range. Matches article.css.
+    static func scale(_ fontScale: Double) -> Double { min(max(fontScale, 0.85), 1.2) }
+
+    var body: some View {
+        Text(title)
+            .font(titleFont)
+            .foregroundStyle(.primary)
+            .padding(.horizontal, 20)
+            // article.css: body's 16px plus the 40px that clears the back button.
+            .padding(.top, 60)
+            .padding(.bottom, 16)
+    }
+
+    private var size: Double { theme.textOnlyTitleSize * Self.scale(fontScale) }
+    private var titleFont: Font { .custom(theme.titleFontName, size: size, relativeTo: .largeTitle) }
 }
 
 private struct HeroLayout {

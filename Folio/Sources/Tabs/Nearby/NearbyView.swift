@@ -13,7 +13,8 @@ struct NearbyView: View {
     @State private var articles: [NearbyArticle] = []
     @State private var selectedID: Int?
     @State private var isLoading = false
-    @State private var loadError: String?
+    @State private var failure: LoadFailure?
+    @State private var lastAttempt: (center: CLLocationCoordinate2D, radius: Int)?
     @State private var cameraPosition: MapCameraPosition = .automatic
     @State private var lastQueryCoord: CLLocationCoordinate2D?
     @State private var lastQueryRadius: Int?
@@ -101,12 +102,21 @@ struct NearbyView: View {
                         .padding()
                         .background(.thinMaterial, in: Capsule())
                         .padding(.bottom, 16)
-                } else if let loadError {
-                    Text(loadError)
-                        .font(.footnote)
-                        .padding(8)
-                        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 8))
-                        .padding(.bottom, 16)
+                } else if let failure, let lastAttempt {
+                    // Where the carousel would be, so the map stays usable.
+                    LoadFailureView(
+                        headline: "Couldn't load nearby articles",
+                        failure: failure,
+                        retry: {
+                            fetchTask?.cancel()
+                            fetchTask = Task { @MainActor in await fetch(center: lastAttempt.center, radius: lastAttempt.radius) }
+                        },
+                        isCompact: true
+                    )
+                    .padding(.vertical, 16)
+                    .background(theme.barBackground, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 16)
                 }
             }
         } else {
@@ -160,7 +170,8 @@ struct NearbyView: View {
     private func fetch(center: CLLocationCoordinate2D, radius: Int) async {
         isLoading = true
         defer { isLoading = false }
-        loadError = nil
+        failure = nil
+        lastAttempt = (center, radius)
         do {
             let fresh = try await WikipediaClient.shared.nearby(
                 latitude: center.latitude,
@@ -180,7 +191,7 @@ struct NearbyView: View {
             lastQueryRadius = radius
         } catch {
             if Task.isCancelled { return }
-            loadError = error.localizedDescription
+            failure = LoadFailure(error)
         }
     }
 

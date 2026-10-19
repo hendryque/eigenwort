@@ -110,6 +110,8 @@ actor WikipediaClient {
     private func dataAsync(for request: URLRequest) async throws -> (Data, URLResponse) {
         do {
             return try await session.data(for: request)
+        } catch let error as URLError {
+            throw WikipediaError.mapping(error)
         } catch {
             throw WikipediaError.transport(error.localizedDescription)
         }

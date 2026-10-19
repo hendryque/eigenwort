@@ -5,6 +5,8 @@ struct ArticleReaderView: View {
     @Environment(\.folioTheme) private var theme
     let title: String
     let language: String
+    /// Where "Search for it" goes when Wikipedia has no article by this title.
+    var onSearch: ((String) -> Void)?
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
@@ -13,7 +15,7 @@ struct ArticleReaderView: View {
 
     @State private var summary: ArticleSummary?
     @State private var html: String?
-    @State private var loadError: String?
+    @State private var loadFailure: LoadFailure?
     @State private var historyRecorded = false
 
     @State private var sections: [ArticleSection] = []
@@ -39,7 +41,9 @@ struct ArticleReaderView: View {
             content
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            if html != nil {
+            // The bar stays on a failure, as in V: sharing and bookmarking still
+            // make sense, and contents and images grey out without an article.
+            if html != nil || loadFailure != nil {
                 BottomReaderToolbar(
                     isBookmarked: isBookmarked,
                     shareURL: shareURL,
@@ -92,7 +96,7 @@ struct ArticleReaderView: View {
             ImageLightbox(url: wrapped.url, caption: wrapped.caption)
         }
         .navigationDestination(item: $pushedArticle) { dest in
-            ArticleReaderView(title: dest.title, language: dest.language ?? language)
+            ArticleReaderView(title: dest.title, language: dest.language ?? language, onSearch: onSearch)
         }
         // Header EN/DE toggle changes AppSettings.defaultLanguage. When the user is
         // in an article and that global language differs from the current article's,
@@ -166,13 +170,9 @@ struct ArticleReaderView: View {
             }
 
             if !webViewReady {
-                if let loadError {
-                    ContentUnavailableView(
-                        "Couldn't load article",
-                        systemImage: "exclamationmark.triangle",
-                        description: Text(loadError)
-                    )
-                    .transition(.opacity)
+                if let loadFailure {
+                    failurePage(loadFailure)
+                        .transition(.opacity)
                 } else if let summary, visionComplete {
                     ArticleLoadingPreview(
                         summary: summary,
@@ -188,6 +188,26 @@ struct ArticleReaderView: View {
                 }
             }
         }
+    }
+
+    /// The title stays where the article would have started, as in V, so the
+    /// page still says what failed to open.
+    private func failurePage(_ failure: LoadFailure) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ArticleTitle(title: displayTitle, theme: theme, fontScale: fontScale)
+            Spacer(minLength: 24)
+            LoadFailureView(
+                headline: "Couldn't load this article",
+                failure: failure,
+                retry: { Task { await loadAll() } },
+                search: onSearch.map { search in { search(displayTitle) } }
+            )
+            .frame(maxWidth: .infinity)
+            Spacer(minLength: 24)
+            Spacer(minLength: 24)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(theme.paper)
     }
 
     private var identityKey: String { "\(language)/\(title)" }
@@ -252,7 +272,7 @@ struct ArticleReaderView: View {
         // remounted pane. If we're already painted, do nothing.
         if webViewReady { return }
 
-        loadError = nil
+        loadFailure = nil
         alternateLink = nil
         heroFocalPoint = nil
         cachedHeroURL = nil
@@ -379,7 +399,7 @@ struct ArticleReaderView: View {
             upsertCache(html: fresh)
         } catch {
             if Task.isCancelled { return }
-            loadError = error.localizedDescription
+            loadFailure = LoadFailure(error)
         }
     }
 

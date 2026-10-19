@@ -65,36 +65,6 @@ struct TopHeader: View {
     }
 }
 
-/// The app icon's paragraph at header size: one word in the accent among grey
-/// ones. Drawn rather than bundled so it takes each theme's colours.
-private struct ParagraphMark: View {
-    @Environment(\.folioTheme) private var theme
-
-    // In thirds of a point, so every edge lands on a 3x pixel. Each line is
-    // its indent and word widths: the first indented, the last short.
-    private static let lines: [(indent: CGFloat, words: [CGFloat])] = [
-        (9, [18, 26]), (0, [15, 24, 10]), (0, [27, 26]), (0, [18, 12])
-    ]
-    private static let accent = (line: 1, word: 1)
-    private static let stroke: CGFloat = 7, pitch: CGFloat = 14, gap: CGFloat = 4, width: CGFloat = 57
-
-    var body: some View {
-        Canvas { context, _ in
-            context.scaleBy(x: 1.0 / 3, y: 1.0 / 3)
-            for (row, line) in Self.lines.enumerated() {
-                var x = line.indent
-                for (index, word) in line.words.enumerated() {
-                    let rect = CGRect(x: x, y: CGFloat(row) * Self.pitch, width: word, height: Self.stroke)
-                    let isAccent = (row, index) == Self.accent
-                    context.fill(Path(rect), with: .color(isAccent ? theme.palette.accentColor : theme.palette.secondaryColor.opacity(0.45)))
-                    x += word + Self.gap
-                }
-            }
-        }
-        .frame(width: Self.width / 3, height: (CGFloat(Self.lines.count - 1) * Self.pitch + Self.stroke) / 3)
-    }
-}
-
 private struct SearchBar: View {
     @Binding var text: String
     @FocusState.Binding var focused: Bool
