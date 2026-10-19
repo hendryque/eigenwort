@@ -59,7 +59,7 @@ struct SettingsView: View {
                 }
 
                 Section("About") {
-                    NavigationLink("About Folio") {
+                    NavigationLink("About Eigenwort") {
                         AboutView()
                     }
                 }
@@ -83,7 +83,7 @@ struct SettingsView: View {
 
     private var themeDescription: String {
         switch currentTheme {
-        case .system: "Folio follows your iPhone's appearance setting — light during the day, dark at night."
+        case .system: "Eigenwort follows your iPhone's appearance setting — light during the day, dark at night."
         case .light: "Pure white background. Maximum contrast for daytime reading."
         case .sepia: "Warm parchment background. Easier on the eyes for long sessions."
         case .dark: "Dim background. Best for low-light and night reading."
@@ -275,14 +275,14 @@ struct AboutView: View {
     var body: some View {
         List {
             Section {
-                LabeledContent("Name", value: "Folio")
+                LabeledContent("Name", value: "Eigenwort")
                 LabeledContent("Version", value: appVersion)
                 LabeledContent("Built on", value: "Wikipedia REST API")
             }
             Section("Credits") {
-                Text("Folio is a personal reader for Wikipedia, inspired by V for Wikipedia (Raureif, 2016) by Frank Rausch. Typographizer logic adapted from the Raureif/Typographizer project (MIT).")
+                Text("Eigenwort is a personal reader for Wikipedia, inspired by V for Wikipedia (Raureif, 2016) by Frank Rausch. Typographizer logic adapted from the Raureif/Typographizer project (MIT).")
                     .font(.callout)
-                Text("Typography is set in EB Garamond by Georg Mayr-Duffner & Octavio Pardo. The De:Bug theme uses Barlow Semi Condensed by Jeremy Tribby. All bundled fonts are under the SIL Open Font License.")
+                Text("Typography is set in EB Garamond by Georg Mayr-Duffner & Octavio Pardo. The De:Bug theme uses Besley by Owen Earl and Barlow Semi Condensed by Jeremy Tribby. All bundled fonts are under the SIL Open Font License.")
                     .font(.callout)
             }
             Section("Source") {

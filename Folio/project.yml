@@ -33,7 +33,7 @@ targets:
     info:
       path: GeneratedInfo.plist
       properties:
-        CFBundleDisplayName: Folio
+        CFBundleDisplayName: Eigenwort
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleIdentifier: $(PRODUCT_BUNDLE_IDENTIFIER)
@@ -42,7 +42,7 @@ targets:
         CFBundleName: $(PRODUCT_NAME)
         LSApplicationCategoryType: public.app-category.reference
         LSRequiresIPhoneOS: YES
-        NSLocationWhenInUseUsageDescription: "Folio queries Wikipedia's geosearch endpoint to find articles near you. Your location is not sent or saved anywhere else."
+        NSLocationWhenInUseUsageDescription: "Eigenwort queries Wikipedia's geosearch endpoint to find articles near you. Your location is not sent or saved anywhere else."
         UIAppFonts:
           - EBGaramond-Regular.otf
           - EBGaramond-Medium.otf

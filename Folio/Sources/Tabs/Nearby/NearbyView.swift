@@ -201,7 +201,7 @@ private struct LocationPermissionPrompt: View {
             Text("Discover Wikipedia near you")
                 .font(.custom("EBGaramond-Regular", size: 24, relativeTo: .body))
                 .multilineTextAlignment(.center)
-            Text("Folio uses your location only to query Wikipedia's geosearch endpoint. Nothing is sent anywhere else.")
+            Text("Eigenwort uses your location only to query Wikipedia's geosearch endpoint. Nothing is sent anywhere else.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -223,7 +223,7 @@ private struct LocationDenied: View {
         ContentUnavailableView {
             Label("Location is off", systemImage: "location.slash")
         } description: {
-            Text("Enable location for Folio in iOS Settings to use Nearby.")
+            Text("Enable location for Eigenwort in iOS Settings to use Nearby.")
         } actions: {
             if let url = URL(string: UIApplication.openSettingsURLString) {
                 Link("Open Settings", destination: url)

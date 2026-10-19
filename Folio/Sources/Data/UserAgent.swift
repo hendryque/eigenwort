@@ -4,7 +4,7 @@ import Foundation
 /// requests. It accepts a project URL, which keeps a personal address out of
 /// a public binary.
 enum UserAgent {
-    static let value: String = "Folio/\(version) (\(contact))"
+    static let value: String = "Eigenwort/\(version) (\(contact))"
 
     private static let contact = "https://github.com/hendryque/folio"
 
