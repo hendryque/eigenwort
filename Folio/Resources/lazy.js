@@ -47,8 +47,19 @@
         });
     }
 
+    // {{Multiple image}} sizes its cells so the pictures share one height and
+    // rows them with a stylesheet we strip. Each cell's width becomes its share
+    // of the row, so the row fills the column and the pictures still line up.
+    function rowMultipleImages() {
+        document.querySelectorAll('.tmulti .tsingle[style]').forEach(function(cell) {
+            var width = parseFloat(cell.style.width);
+            if (width > 0) cell.style.flex = width + ' 1 0';
+        });
+    }
+
     function unwrap() {
         cleanInfoboxStyles();
+        rowMultipleImages();
         var placeholders = document.querySelectorAll('.pcs-lazy-load-placeholder');
         placeholders.forEach(function(ph) {
             // Only unwrap <span> placeholders that have a data-src

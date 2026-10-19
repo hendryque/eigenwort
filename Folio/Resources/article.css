@@ -534,6 +534,12 @@ table.infobox tbody > tr.infobox-hiddenrow {
     width: auto !important;
 }
 .thumb img { width: 100% !important; height: auto !important; max-width: none !important; }
+/* {{Multiple image}}: one row as wide as a single figure, the cells sharing it
+   in the template's proportions (lazy.js), so their pictures end level. */
+.tmulti .thumbinner { width: auto !important; max-width: none !important; }
+.tmulti .trow { display: flex; gap: 3px; }
+.tmulti .tsingle { flex: 1 1 0; min-width: 0; margin: 0; width: auto !important; max-width: none !important; }
+.tmulti .thumbimage { height: auto !important; overflow: visible !important; }
 .thumbcaption {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
     font-size: 0.83em;
