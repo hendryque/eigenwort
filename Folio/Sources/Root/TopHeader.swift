@@ -18,7 +18,9 @@ struct TopHeader: View {
         VStack(spacing: 8) {
             HStack(spacing: 10) {
                 Button(action: onLogoTap) {
-                    FolioLogo()
+                    ParagraphMark()
+                        .padding(.vertical, 8)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Home")
@@ -63,24 +65,33 @@ struct TopHeader: View {
     }
 }
 
-private struct FolioLogo: View {
+/// The app icon's paragraph at header size: one word in the accent among grey
+/// ones. Drawn rather than bundled so it takes each theme's colours.
+private struct ParagraphMark: View {
     @Environment(\.folioTheme) private var theme
-    // The text frame ends a full descender below the baseline; claw that
-    // back so the rule sits just under the F, matching the app icon's mark.
-    private static let ruleSpacing: CGFloat = {
-        let descent = UIFont(name: "EBGaramond-BoldItalic", size: 22).map { -$0.descender } ?? 6.2
-        return 1.8 - descent
-    }()
+
+    // In thirds of a point, so every edge lands on a 3x pixel. Each line is
+    // its indent and word widths: the first indented, the last short.
+    private static let lines: [(indent: CGFloat, words: [CGFloat])] = [
+        (9, [18, 26]), (0, [15, 24, 10]), (0, [27, 26]), (0, [18, 12])
+    ]
+    private static let accent = (line: 1, word: 1)
+    private static let stroke: CGFloat = 7, pitch: CGFloat = 14, gap: CGFloat = 4, width: CGFloat = 57
 
     var body: some View {
-        VStack(alignment: .center, spacing: Self.ruleSpacing) {
-            Text("F")
-                .font(.custom("EBGaramond-BoldItalic", size: 22, relativeTo: .title3))
-                .foregroundStyle(theme.palette.accentColor)
-            Rectangle()
-                .fill(theme.palette.accentColor)
-                .frame(width: 14, height: 1.5)
+        Canvas { context, _ in
+            context.scaleBy(x: 1.0 / 3, y: 1.0 / 3)
+            for (row, line) in Self.lines.enumerated() {
+                var x = line.indent
+                for (index, word) in line.words.enumerated() {
+                    let rect = CGRect(x: x, y: CGFloat(row) * Self.pitch, width: word, height: Self.stroke)
+                    let isAccent = (row, index) == Self.accent
+                    context.fill(Path(rect), with: .color(isAccent ? theme.palette.accentColor : theme.palette.secondaryColor.opacity(0.45)))
+                    x += word + Self.gap
+                }
+            }
         }
+        .frame(width: Self.width / 3, height: (CGFloat(Self.lines.count - 1) * Self.pitch + Self.stroke) / 3)
     }
 }
 
