@@ -1,6 +1,16 @@
 (function() {
-    function getReferenceContent(href) {
-        const targetId = decodeURIComponent(href.replace('#', ''));
+    // Markers arrive as "./Title#cite_note-…", not "#cite_note-…", so match on
+    // the fragment. Testing the raw href for a leading "#" left every one inert.
+    function noteId(link) {
+        const href = link.getAttribute('href') || '';
+        const hash = href.indexOf('#');
+        if (hash < 0) return null;
+        let id = href.slice(hash + 1);
+        try { id = decodeURIComponent(id); } catch (e) {}
+        return id.startsWith('cite_note') ? id : null;
+    }
+
+    function getReferenceContent(targetId) {
         const refElement = document.getElementById(targetId);
         if (!refElement) return null;
         const refText = refElement.querySelector('.reference-text, .mw-reference-text');
@@ -21,8 +31,8 @@
     document.addEventListener('click', function(event) {
         const link = event.target.closest('a');
         if (!link) return;
-        const href = link.getAttribute('href') || '';
-        if (!href.startsWith('#cite')) return;
+        const id = noteId(link);
+        if (!id) return;
 
         event.preventDefault();
         event.stopPropagation();
@@ -31,16 +41,16 @@
         const paragraph = findParagraphAncestor(anchorEl) || anchorEl;
 
         const next = paragraph.nextElementSibling;
-        if (next && next.classList.contains('folio-footnote') && next.dataset.refid === href) {
+        if (next && next.classList.contains('folio-footnote') && next.dataset.refid === id) {
             next.remove();
             return;
         }
 
-        const content = getReferenceContent(href);
+        const content = getReferenceContent(id);
         if (!content) return;
         const aside = document.createElement('aside');
         aside.className = 'folio-footnote';
-        aside.dataset.refid = href;
+        aside.dataset.refid = id;
         aside.innerHTML = content;
         paragraph.insertAdjacentElement('afterend', aside);
     }, true);

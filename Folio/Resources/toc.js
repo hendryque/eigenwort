@@ -4,6 +4,8 @@
         const seen = new Set();
         const out = [];
         headers.forEach(h => {
+            // A heading that does not render is not somewhere you can go.
+            if (h.getClientRects().length === 0) return;
             const text = (h.innerText || '').trim();
             if (!text || seen.has(text)) return;
             seen.add(text);

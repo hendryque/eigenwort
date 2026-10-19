@@ -172,7 +172,7 @@ struct ArticleWebView: UIViewRepresentable {
     }
 
     private static let userScriptSources: [String] = {
-        ["lazy", "toc", "footnotes", "images", "pinch", "scroll", "section", "painted"].compactMap { name in
+        ["lazy", "references", "toc", "footnotes", "images", "pinch", "scroll", "section", "painted"].compactMap { name in
             guard let url = Bundle.main.url(forResource: name, withExtension: "js") else { return nil }
             return try? String(contentsOf: url, encoding: .utf8)
         }

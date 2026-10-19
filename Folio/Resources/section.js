@@ -10,6 +10,7 @@
         var current = null;
         for (var i = 0; i < headings.length; i++) {
             var h = headings[i];
+            if (h.getClientRects().length === 0) continue;
             if (h.offsetTop <= threshold) {
                 current = h;
             } else {

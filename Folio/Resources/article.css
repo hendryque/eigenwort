@@ -213,6 +213,10 @@ sup a { border-bottom: none; }
 .noprint,
 .navbox,
 .vertical-navbox,
+/* de.wiki's names for the navbox and authority control. Not by their other
+   classes: infoboxes share hintergrundfarbe1 and would vanish too. */
+.navileiste,
+#normdaten,
 .ambox,
 .metadata,
 .mw-references-wrap,
@@ -235,8 +239,6 @@ nav,
 [id="pcs-edit-section-title-description"],
 [data-description-source],
 .pcs-ref-item,
-section:has(> .pcs-ref-item),
-section:has(.pcs-ref-item),
 .pcs-collapse-table-icon,
 .pcs-collapse-table-aria,
 .pcs-collapse-table-collapse-text,
@@ -262,6 +264,11 @@ header:not(.folio-header) {
    client-side JS to expand them on tap. We don't run that JS — force everything open. */
 section[data-mw-section-id] {
     display: block !important;
+}
+/* Marked by references.js. The extra class has to outrank the rule above:
+   at equal specificity, source order alone kept the old hide rule dead. */
+section[data-mw-section-id].folio-reference-section {
+    display: none !important;
 }
 
 /* Math (MathML + SVG fallback) */
