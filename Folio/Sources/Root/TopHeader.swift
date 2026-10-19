@@ -57,7 +57,7 @@ struct TopHeader: View {
         .background(theme.barBackground)
         .overlay(alignment: .bottom) {
             Rectangle()
-                .fill(theme.palette.secondaryColor.opacity(0.2))
+                .fill(theme.palette.hairlineColor)
                 .frame(height: 0.5)
         }
     }

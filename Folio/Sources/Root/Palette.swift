@@ -25,6 +25,8 @@ struct Palette: Sendable {
     var secondaryColor: Color { Color(rgb: secondary) }
     var accentColor: Color { Color(rgb: accent) }
     var cardColor: Color { Color(rgb: card) }
+    /// The edge chrome draws against the page: the header's foot, the reader's bar.
+    var hairlineColor: Color { secondaryColor.opacity(0.2) }
 
     /// The `:root` block the theme stylesheets used to carry.
     var cssVariables: String {

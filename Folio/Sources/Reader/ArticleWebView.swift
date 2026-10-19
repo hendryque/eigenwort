@@ -8,6 +8,12 @@ struct ArticleSection: Identifiable, Hashable, Sendable {
     let anchor: String
 }
 
+/// Where the reader is, and how much of the page is left below the viewport.
+struct ReaderScroll: Sendable {
+    let y: Double
+    let remaining: Double
+}
+
 struct ArticleWebView: UIViewRepresentable {
     let html: String
     let articleURL: URL
@@ -25,7 +31,7 @@ struct ArticleWebView: UIViewRepresentable {
     var onImageTap: (URL, String?) -> Void = { _, _ in }
     var onFontScale: (Double) -> Void = { _ in }
     var onInternalLink: (ArticleDestination) -> Void = { _ in }
-    var onScroll: (Double) -> Void = { _ in }
+    var onScroll: (ReaderScroll) -> Void = { _ in }
     var onActiveSection: (String?) -> Void = { _ in }
     var onReady: () -> Void = {}
     var onReload: () -> Void = {}
@@ -186,7 +192,7 @@ struct ArticleWebView: UIViewRepresentable {
         var onImageTap: (URL, String?) -> Void
         var onFontScale: (Double) -> Void
         var onInternalLink: (ArticleDestination) -> Void
-        var onScroll: (Double) -> Void
+        var onScroll: (ReaderScroll) -> Void
         var onActiveSection: (String?) -> Void
         var onReady: () -> Void
         var onReload: () -> Void
@@ -210,7 +216,7 @@ struct ArticleWebView: UIViewRepresentable {
             onImageTap: @escaping (URL, String?) -> Void,
             onFontScale: @escaping (Double) -> Void,
             onInternalLink: @escaping (ArticleDestination) -> Void,
-            onScroll: @escaping (Double) -> Void,
+            onScroll: @escaping (ReaderScroll) -> Void,
             onActiveSection: @escaping (String?) -> Void,
             onReady: @escaping () -> Void,
             onReload: @escaping () -> Void
@@ -267,7 +273,7 @@ struct ArticleWebView: UIViewRepresentable {
                     let dict = body as? [String: Any],
                     let y = dict["y"] as? Double
                 else { return }
-                onScroll(y)
+                onScroll(ReaderScroll(y: y, remaining: dict["remaining"] as? Double ?? .infinity))
 
             case "activeSection":
                 guard let dict = body as? [String: Any] else { return }

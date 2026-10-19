@@ -30,8 +30,7 @@ struct ArticleReaderView: View {
     @State private var webViewReady: Bool = false
     @State private var reloadToken = UUID()
     @State private var initialScrollY: Double = 0
-    @State private var toolbarVisible: Bool = true
-    @State private var toolbarRevealTask: Task<Void, Never>?
+    @State private var toolbarReveal = ToolbarReveal()
     @State private var refreshTask: Task<Void, Never>?
     @State private var activeSectionAnchor: String?
 
@@ -55,9 +54,10 @@ struct ArticleReaderView: View {
                     onShowGallery: { showGallery = true },
                     onShowTOC: { showTOC = true }
                 )
-                .opacity(toolbarVisible ? 1 : 0)
-                .offset(y: toolbarVisible ? 0 : 90)
-                .allowsHitTesting(toolbarVisible)
+                .opacity(toolbarReveal.isVisible ? 1 : 0)
+                .offset(y: toolbarReveal.isVisible ? 0 : 90)
+                .allowsHitTesting(toolbarReveal.isVisible)
+                .animation(.easeOut(duration: 0.22), value: toolbarReveal.isVisible)
                 .transition(.opacity)
             }
         }
@@ -111,7 +111,6 @@ struct ArticleReaderView: View {
         }
         .onDisappear {
             refreshTask?.cancel()
-            toolbarRevealTask?.cancel()
         }
     }
 
@@ -261,6 +260,7 @@ struct ArticleReaderView: View {
         webViewReady = false
         galleryItems = []
         initialScrollY = 0
+        toolbarReveal = ToolbarReveal()
         #if DEBUG
         // Deterministic scroll for automated screenshots, e.g.
         // `-screenshotScrollY 1800`. Never set in a release build.
@@ -333,8 +333,8 @@ struct ArticleReaderView: View {
         galleryItems = (try? await WikipediaClient.shared.mediaList(title: title, language: language)) ?? []
     }
 
-    private func handleScroll(_ y: Double) {
-        updateToolbarVisibility(forNewY: y)
+    private func handleScroll(_ scroll: ReaderScroll) {
+        toolbarReveal.update(y: scroll.y, remaining: scroll.remaining)
     }
 
     /// Called when WKWebView's content process is terminated by iOS. Dropping
@@ -344,30 +344,6 @@ struct ArticleReaderView: View {
     private func handleContentProcessTerminated() {
         webViewReady = false
         reloadToken = UUID()
-    }
-
-    /// Idle-reveal pattern: any scroll fades the toolbar out; after 0.8s of no scroll
-    /// activity, fade it back in. Near the top of the article (under the hero) the
-    /// toolbar stays visible regardless — users have just landed or are about to leave.
-    private func updateToolbarVisibility(forNewY y: Double) {
-        if y < 80 {
-            toolbarRevealTask?.cancel()
-            if !toolbarVisible {
-                withAnimation(.easeOut(duration: 0.2)) { toolbarVisible = true }
-            }
-            return
-        }
-
-        if toolbarVisible {
-            withAnimation(.easeOut(duration: 0.2)) { toolbarVisible = false }
-        }
-
-        toolbarRevealTask?.cancel()
-        toolbarRevealTask = Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(800))
-            guard !Task.isCancelled else { return }
-            withAnimation(.easeOut(duration: 0.3)) { toolbarVisible = true }
-        }
     }
 
     private func loadLanglinks() async {
@@ -599,13 +575,12 @@ private struct BottomReaderToolbar: View {
         .font(.system(size: 19, weight: .regular))
         .foregroundStyle(Color.primary)
         .buttonStyle(.plain)
-        .frame(height: 56)
+        .frame(height: 44)
         .background(theme.barBackground)
         .clipShape(Capsule())
         .overlay(
-            Capsule().stroke(Color.black.opacity(0.06), lineWidth: 0.5)
+            Capsule().stroke(theme.palette.hairlineColor, lineWidth: 0.75)
         )
-        .shadow(color: .black.opacity(0.12), radius: 12, y: 3)
         .padding(.horizontal, 28)
         .padding(.bottom, 12)
     }
