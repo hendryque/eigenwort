@@ -81,6 +81,9 @@ struct ContentView: View {
             }
             .animation(.easeInOut(duration: 0.18), value: isSearching)
         }
+        // A sheet takes the environment where it is attached, so this stays
+        // inside the theme modifiers or Settings falls back to Light.
+        .sheet(isPresented: $showSettings) { SettingsView() }
         // The chrome carries the theme's accent too: De:Bug is one spot
         // colour per issue, and an orange logo over magenta links reads as a
         // mistake rather than a costume.
@@ -91,7 +94,6 @@ struct ContentView: View {
             ensureSettingsRow()
             applyScreenshotOverrides()
         }
-        .sheet(isPresented: $showSettings) { SettingsView() }
     }
 
     @ViewBuilder

@@ -74,6 +74,9 @@ struct SettingsView: View {
                 }
             }
         }
+        // The sheet keeps the scheme it opened with, so picking a theme here
+        // left Dark with white rows. The resolved theme always names one.
+        .preferredColorScheme(theme.colorScheme)
     }
 
     private var settings: AppSettings? { settingsList.first }
@@ -193,80 +196,56 @@ private struct ThemePreview: View {
 
     var body: some View {
         Group {
-            switch theme {
-            case .system:
-                HStack(spacing: 0) {
-                    ThemeMockup(palette: .light)
-                    ThemeMockup(palette: .dark)
-                }
-            case .light:
+            if theme == .system {
+                // Auto is the device's choice, so it shows both halves of one page.
                 ThemeMockup(palette: .light)
-            case .sepia:
-                ThemeMockup(palette: .sepia)
-            case .dark:
-                ThemeMockup(palette: .dark)
-            case .debug:
-                ThemeMockup(palette: .debug)
+                    .overlay {
+                        ThemeMockup(palette: .dark)
+                            .mask { HStack(spacing: 0) { Color.clear; Color.black } }
+                    }
+            } else {
+                ThemeMockup(palette: theme.palette)
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 }
 
+/// A page in miniature: a title, text, one link. Line lengths are fractions
+/// of the card so five cards fit across even the mini.
 private struct ThemeMockup: View {
-    let palette: ThemePalette
+    let palette: Palette
+
+    private enum Ink { case title, text, link }
+
+    private static let lines: [(length: CGFloat, ink: Ink)] = [
+        (0.8, .title), (1, .text), (1, .text), (0.6, .link), (1, .text), (0.7, .text)
+    ]
 
     var body: some View {
-        ZStack {
-            palette.bg
+        GeometryReader { proxy in
             VStack(alignment: .leading, spacing: 3) {
-                Capsule().fill(palette.fg)
-                    .frame(width: 30, height: 4)
-                Capsule().fill(palette.fg.opacity(0.55))
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 2)
-                Capsule().fill(palette.fg.opacity(0.55))
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 2)
-                Capsule().fill(palette.accent)
-                    .frame(width: 22, height: 2)
-                Capsule().fill(palette.fg.opacity(0.55))
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 2)
-                Capsule().fill(palette.fg.opacity(0.55))
-                    .frame(width: 36, height: 2)
+                ForEach(Self.lines.indices, id: \.self) { index in
+                    let line = Self.lines[index]
+                    Capsule()
+                        .fill(color(line.ink))
+                        .frame(width: proxy.size.width * line.length, height: line.ink == .title ? 4 : 2)
+                }
             }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 10)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 10)
+        .background(palette.backgroundColor)
+    }
+
+    private func color(_ ink: Ink) -> Color {
+        switch ink {
+        case .title: palette.foregroundColor
+        case .text: palette.foregroundColor.opacity(0.55)
+        case .link: Color(rgb: palette.link)
         }
     }
-}
-
-private struct ThemePalette {
-    let bg: Color
-    let fg: Color
-    let accent: Color
-
-    static let light = ThemePalette(
-        bg: Color(red: 1.0, green: 1.0, blue: 1.0),
-        fg: Color(red: 0.10, green: 0.10, blue: 0.10),
-        accent: Color(red: 0.85, green: 0.32, blue: 0.13)
-    )
-    static let sepia = ThemePalette(
-        bg: Color(red: 0.957, green: 0.926, blue: 0.847),
-        fg: Color(red: 0.24, green: 0.18, blue: 0.11),
-        accent: Color(red: 0.71, green: 0.22, blue: 0.11)
-    )
-    static let dark = ThemePalette(
-        bg: Color(red: 0.102, green: 0.102, blue: 0.110),
-        fg: Color(red: 0.91, green: 0.91, blue: 0.92),
-        accent: Color(red: 1.0, green: 0.52, blue: 0.34)
-    )
-    static let debug = ThemePalette(
-        bg: Color(red: 0.910, green: 0.898, blue: 0.871),
-        fg: Color(red: 0.110, green: 0.106, blue: 0.098),
-        accent: Color(red: 0.788, green: 0.0, blue: 0.420)
-    )
 }
 
 // MARK: - About
