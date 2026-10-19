@@ -37,10 +37,6 @@ enum ArticleHTML {
 
         let css = loadCSS()
         let themeName = theme.cssDataTheme
-        let scale = String(format: "%.3f", fontScale)
-        // Display titles should respond to the reader setting without growing
-        // so far that long titles overflow the fixed 4:3 hero.
-        let titleScale = String(format: "%.3f", min(max(fontScale, 0.85), 1.2))
 
         // First <p> still gets folio-lead in case we want to style it later;
         // drop cap is no longer applied (matches V for Wikipedia).
@@ -55,17 +51,9 @@ enum ArticleHTML {
         let fontQueriesJSON = (try? JSONEncoder().encode(theme.webFontQueries))
             .flatMap { String(data: $0, encoding: .utf8) } ?? "[]"
 
-        // The stylesheet reads both the palette and the metrics from here, so
-        // the chrome and the article ground cannot drift apart and the preview
-        // cannot drift from what it fades into.
-        let metrics = String(
-            format: "--folio-body-size: %.1fpx; --folio-body-leading: %.3f; --folio-measure: %.0frem;",
-            theme.bodySize, theme.bodyLineHeight, theme.measureRem
-        ) + " " + theme.palette.cssVariables
-
         let rendered = """
         <!DOCTYPE html>
-        <html lang="\(htmlEscape(language))" data-font-queries="\(htmlEscape(fontQueriesJSON))" style="\(metrics) --folio-font-scale: \(scale); --folio-title-scale: \(titleScale);">
+        <html lang="\(htmlEscape(language))" data-font-queries="\(htmlEscape(fontQueriesJSON))" style="\(htmlEscape(rootStyle(theme: theme, fontScale: fontScale)))">
         <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -137,6 +125,19 @@ enum ArticleHTML {
             .replacingOccurrences(of: "<", with: "&lt;")
             .replacingOccurrences(of: ">", with: "&gt;")
             .replacingOccurrences(of: "\"", with: "&quot;")
+    }
+
+    /// Everything the stylesheet reads from the root: the theme's metrics and
+    /// palette, and the reader's scales. A live theme switch sets this same
+    /// string, so a switched article cannot keep the colours it opened with.
+    static func rootStyle(theme: Theme, fontScale: Double) -> String {
+        String(
+            format: "--folio-body-size: %.1fpx; --folio-body-leading: %.3f; --folio-measure: %.0frem; ",
+            theme.bodySize, theme.bodyLineHeight, theme.measureRem
+        ) + theme.palette.cssVariables + String(
+            format: " --folio-font-scale: %.3f; --folio-title-scale: %.3f;",
+            fontScale, ArticleTitle.scale(fontScale)
+        )
     }
 
     private static func loadCSS() -> String {

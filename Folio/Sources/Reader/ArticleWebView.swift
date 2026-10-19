@@ -141,8 +141,8 @@ struct ArticleWebView: UIViewRepresentable {
         } else {
             // Same document — preload the target theme's faces before flipping
             // the attribute, so a live theme change cannot expose fallback type.
-            let titleScale = min(max(fontScale, 0.85), 1.2)
             let queriesJSON = Self.javaScriptJSON(theme.webFontQueries)
+            let styleJSON = Self.javaScriptJSON(ArticleHTML.rootStyle(theme: theme, fontScale: fontScale))
             let js = """
             (function () {
                 const request = (window.__folioThemeRequest || 0) + 1;
@@ -153,8 +153,7 @@ struct ArticleWebView: UIViewRepresentable {
                     .then(function () {
                         if (window.__folioThemeRequest !== request) return;
                         document.body && document.body.setAttribute('data-theme', '\(theme.cssDataTheme)');
-                        document.documentElement && document.documentElement.style.setProperty('--folio-font-scale', '\(fontScale)');
-                        document.documentElement && document.documentElement.style.setProperty('--folio-title-scale', '\(titleScale)');
+                        document.documentElement && document.documentElement.setAttribute('style', \(styleJSON));
                     });
             })();
             """

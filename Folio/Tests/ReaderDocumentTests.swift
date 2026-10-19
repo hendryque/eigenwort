@@ -80,6 +80,18 @@ struct ReaderDocumentTests {
         }
     }
 
+    /// A live switch once flipped only `data-theme`, so the article kept the
+    /// colours it opened with while the chrome changed around it.
+    @Test("A live theme switch sets the same root style the document opens with")
+    func liveSwitchCarriesPaletteAndMetrics() {
+        for theme in Theme.allCases.map({ $0.resolved(for: .dark) }) {
+            let style = ArticleHTML.rootStyle(theme: theme, fontScale: 1.0)
+            #expect(style.contains(theme.palette.cssVariables))
+            #expect(style.contains(String(format: "--folio-body-size: %.1fpx", theme.bodySize)))
+            #expect(render(theme: theme).html.contains(style))
+        }
+    }
+
     @Test("The colophon escapes the URLs it embeds")
     func colophonIsEscaped() {
         let html = render(language: "de").html
