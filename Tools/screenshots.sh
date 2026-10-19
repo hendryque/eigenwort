@@ -44,11 +44,11 @@ grab() {
 
 # Always state the theme: the app persists the last one used, and it otherwise
 # leaks into a shot meant to be light.
-grab reader   -screenshotTheme light -screenshotArticle "Metropolitan Museum of Art" -screenshotLanguage en -screenshotScrollY 0
-grab debug    -screenshotTheme debug -screenshotArticle "Bauhaus" -screenshotLanguage de -screenshotScrollY 0
-grab today    -screenshotTheme light -screenshotTab today
-grab nearby   -screenshotTheme light -screenshotTab nearby
-grab settings -screenshotTheme light -screenshotSettings 1
+grab reader   -screenshotFontScale 1 -screenshotTheme light -screenshotArticle "Metropolitan Museum of Art" -screenshotLanguage en -screenshotScrollY 0
+grab debug    -screenshotFontScale 1 -screenshotTheme debug -screenshotArticle "Bauhaus" -screenshotLanguage de -screenshotScrollY 0
+grab today    -screenshotFontScale 1 -screenshotTheme light -screenshotTab today
+grab nearby   -screenshotFontScale 1 -screenshotTheme light -screenshotTab nearby
+grab settings -screenshotFontScale 1 -screenshotTheme light -screenshotSettings 1
 
 RAW="$RAW" OUT="$ROOT/docs/screenshots" /usr/bin/env python3 - <<'PY'
 from PIL import Image, ImageDraw, ImageFilter

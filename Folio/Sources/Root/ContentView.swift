@@ -408,6 +408,13 @@ extension ContentView {
             settings?.theme = themeRaw
             try? modelContext.save()
         }
+        // The reader re-applies the stored scale on every update, so a size set
+        // from inside the page does not survive the first scroll.
+        let fontScale = defaults.double(forKey: "screenshotFontScale")
+        if fontScale > 0 {
+            settings?.fontScale = fontScale
+            try? modelContext.save()
+        }
         #endif
     }
 }

@@ -1,6 +1,6 @@
-// The reference lists stay in the DOM because footnotes.js opens notes from
-// them, but a section holding nothing else should not leave its heading behind.
-// Ask layout rather than copy article.css's list of what it hides.
+// End matter. Reference sections with nothing else visible go, heading and
+// all, though their lists stay in the DOM for footnotes.js. Appendices are
+// marked so article.css can set them as consulting matter.
 (function () {
     function ownHeading(section) {
         var headings = section.querySelectorAll('h2, h3, h4, h5, h6');
@@ -35,6 +35,13 @@
             hide(parent);
         }
     }
+
+    // Both wikis standardise their appendix headings in their layout guidelines.
+    var APPENDIX = /^(siehe auch|literatur|weblinks|anmerkungen|einzelnachweise|see also|notes|footnotes|references|notes and references|citations|sources|bibliography|works cited|general references|further reading|external links)$/i;
+    document.querySelectorAll('section').forEach(function (section) {
+        var heading = ownHeading(section);
+        if (heading && APPENDIX.test(heading.textContent.trim())) section.classList.add('folio-endmatter');
+    });
 
     document.querySelectorAll('ol.references').forEach(function (list) {
         var section = list.closest('section');
