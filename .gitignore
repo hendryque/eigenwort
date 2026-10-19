@@ -43,3 +43,6 @@ Folio/GeneratedInfo.plist
 
 # Working design notes, kept local
 docs/*.md
+
+# Personal working files, not part of the project.
+assets/
