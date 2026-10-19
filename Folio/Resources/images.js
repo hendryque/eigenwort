@@ -17,7 +17,15 @@
         return caption ? caption.textContent.trim() : '';
     }
 
+    // Wikipedia writes srcset protocol-relative (//upload.wikimedia.org/...)
+    // and the reader only opens https, so a raw candidate was dropped and the
+    // tap did nothing. Resolve against the base, the article's https URL.
+    function absolute(url) {
+        try { return new URL(url, document.baseURI).href; } catch (e) { return ''; }
+    }
+
     function post(url, caption) {
+        url = url && absolute(url);
         if (!url) return;
         try { window.webkit?.messageHandlers?.image?.postMessage({ url, caption: caption || '' }); } catch (e) {}
     }
