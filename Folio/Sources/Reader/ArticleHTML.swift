@@ -141,7 +141,7 @@ enum ArticleHTML {
     }
 
     private static func loadCSS() -> String {
-        let names = ["article", "theme-debug"]
+        let names = ["article", "theme-debug", "theme-gimmick"]
         let bundled = names.compactMap { resource(name: $0, ext: "css") }.joined(separator: "\n\n")
         return BundledFonts.articleCSS + "\n\n" + bundled
     }

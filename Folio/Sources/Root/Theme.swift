@@ -6,6 +6,7 @@ enum Theme: String, CaseIterable, Identifiable, Sendable {
     case sepia
     case dark
     case debug
+    case gimmick
 
     var id: String { rawValue }
 
@@ -16,13 +17,14 @@ enum Theme: String, CaseIterable, Identifiable, Sendable {
         case .sepia: "Sepia"
         case .dark: "Dark"
         case .debug: "De:Bug"
+        case .gimmick: "Gimmick"
         }
     }
 
     var colorScheme: ColorScheme? {
         switch self {
         case .system: nil
-        case .light, .sepia, .debug: .light
+        case .light, .sepia, .debug, .gimmick: .light
         case .dark: .dark
         }
     }
@@ -43,6 +45,7 @@ enum Theme: String, CaseIterable, Identifiable, Sendable {
         case .sepia: "sepia"
         case .dark: "dark"
         case .debug: "debug"
+        case .gimmick: "gimmick"
         }
     }
 
@@ -53,6 +56,7 @@ enum Theme: String, CaseIterable, Identifiable, Sendable {
         case .sepia: .sepia
         case .dark: .dark
         case .debug: .debug
+        case .gimmick: .gimmick
         }
     }
 
@@ -64,6 +68,7 @@ enum Theme: String, CaseIterable, Identifiable, Sendable {
         case .sepia: "book"
         case .dark: "moon"
         case .debug: "ant"
+        case .gimmick: "gift"
         }
     }
 
@@ -76,15 +81,36 @@ enum Theme: String, CaseIterable, Identifiable, Sendable {
 
     /// Reader faces and metrics, mirrored by ArticleLoadingPreview. A theme
     /// may swap the display face, so the numbers travel with it.
-    var bodyFontName: String { self == .debug ? "Besley-Regular" : "EBGaramond-Regular" }
-    var bodyBoldFontName: String { self == .debug ? "Besley-Bold" : "EBGaramond-Bold" }
-    var titleFontName: String {
-        self == .debug ? "BarlowSemiCondensed-Bold" : "EBGaramond-Italic"
+    var bodyFontName: String {
+        switch self {
+        case .debug: "Besley-Regular"
+        case .gimmick: "ComicNeue-Regular"
+        default: "EBGaramond-Regular"
+        }
     }
-    /// De:Bug is a costume: Besley for prose standing in for Sentinel, Barlow
-    /// for display standing in for Fakt. Every other theme sets the garalde.
+    var bodyBoldFontName: String {
+        switch self {
+        case .debug: "Besley-Bold"
+        case .gimmick: "ComicNeue-Bold"
+        default: "EBGaramond-Bold"
+        }
+    }
+    var titleFontName: String {
+        switch self {
+        case .debug: "BarlowSemiCondensed-Bold"
+        case .gimmick: "AlfaSlabOne-Regular"
+        default: "EBGaramond-Italic"
+        }
+    }
+    /// The costumes: De:Bug sets Besley for Sentinel and Barlow for Fakt.
+    /// Gimmick sets Comic Neue for the comic's lettering, since nothing records
+    /// Yps's text face, and Alfa Slab One for the heavy slab of its red Y.
     var webFontFamilies: [String] {
-        self == .debug ? [BundledFonts.besley, BundledFonts.barlow] : [BundledFonts.garamond]
+        switch self {
+        case .debug: [BundledFonts.besley, BundledFonts.barlow]
+        case .gimmick: [BundledFonts.comicNeue, BundledFonts.alfaSlab]
+        default: [BundledFonts.garamond]
+        }
     }
 
     /// Faces the reader waits for before revealing. Gating on these rather than
@@ -93,20 +119,54 @@ enum Theme: String, CaseIterable, Identifiable, Sendable {
     var webFontQueries: [String] { BundledFonts.queries(forFamilies: webFontFamilies) }
 
     /// Sized by x-height, not by nominal px, so themes read the same size:
-    /// Garamond's is 0.409em against Besley's 0.520, so 14px of the slab
-    /// matches 18px of the garalde.
-    var bodySize: Double { self == .debug ? 14 : 18 }
+    /// Garamond's is 0.409em, Besley's 0.520 and Comic Neue's 0.494, so 14px
+    /// of the slab and 15px of the comic match 18px of the garalde.
+    var bodySize: Double {
+        switch self {
+        case .debug: 14
+        case .gimmick: 15
+        default: 18
+        }
+    }
 
     /// Set so the interlinear channel, the line height less the real ink,
-    /// lands a little over one x-height. Besley's ink runs 1.204em deep
-    /// against Garamond's 1.085em, so the slab needs more to reach the same.
-    var bodyLineHeight: Double { self == .debug ? 1.75 : 1.52 }
+    /// lands a little over one x-height. Ink runs 1.085em deep in Garamond,
+    /// 1.204 in Besley and 1.045 in Comic Neue.
+    var bodyLineHeight: Double {
+        switch self {
+        case .debug: 1.75
+        case .gimmick: 1.57
+        default: 1.52
+        }
+    }
 
-    /// The cap in rem holds a fixed character count per face, so the wider
-    /// slab needs a wider one to reach the same measure. Only binds on iPad.
-    var measureRem: Double { self == .debug ? 34 : 26 }
-    var heroTitleSize: Double { self == .debug ? 42 : 44.2 }
-    var textOnlyTitleSize: Double { self == .debug ? 38 : 40.8 }
+    /// The cap in rem holds a fixed character count per face, so a wider face
+    /// needs a wider one to reach the same measure. Only binds on iPad.
+    var measureRem: Double {
+        switch self {
+        case .debug: 34
+        case .gimmick: 23
+        default: 26
+        }
+    }
+    /// Gimmick sets display titles like the logo's Y: yellow, with a hard
+    /// offset shadow in the rim's blue, rather than white over the scrim.
+    var hasLogoTitles: Bool { self == .gimmick }
+
+    var heroTitleSize: Double {
+        switch self {
+        case .debug: 42
+        case .gimmick: 36
+        default: 44.2
+        }
+    }
+    var textOnlyTitleSize: Double {
+        switch self {
+        case .debug: 38
+        case .gimmick: 32
+        default: 40.8
+        }
+    }
 }
 
 private struct FolioThemeKey: EnvironmentKey {

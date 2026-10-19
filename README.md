@@ -30,7 +30,7 @@ personal recreation of the parts I used every day. It is an homage, not a replac
   stable crops that do not reposition after appearing
 - Reader: EB Garamond at a capped reading measure, locale-aware typography and
   hyphenation, on-device face-aware hero crops, light, sepia and dark themes
-  plus a De:Bug tribute theme that swaps the prose face too, pinch
+  plus two magazine tributes, De:Bug and Gimmick, that swap the faces too, pinch
   to change text size, table of contents, and image gallery. A lead image
   promoted to the hero is not repeated in the article body, and any image
   opens full screen with its caption, the hero included.
@@ -102,6 +102,10 @@ can't promise a roadmap.
   Type and [Barlow](https://github.com/jpt/barlow) by Jeremy Tribby, bundled
   under the SIL Open Font License 1.1. They stand in for Sentinel and Fakt in
   the De:Bug theme, which is a tribute and not affiliated with the magazine.
+- [Comic Neue](https://github.com/crozynski/comicneue) by Craig Rozynski and
+  [Alfa Slab One](https://github.com/google/fonts/tree/main/ofl/alfaslabone) by José María Solé,
+  bundled under the SIL Open Font License 1.1, for the Gimmick theme. It is a
+  tribute to Yps and not affiliated with the magazine or its publisher.
 - All content comes from [Wikipedia](https://www.wikipedia.org) via the
   Wikimedia APIs and is licensed CC BY-SA. Eigenwort is not affiliated with the
   Wikimedia Foundation.

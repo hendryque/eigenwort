@@ -67,7 +67,8 @@ struct ReaderDocumentTests {
     func leadingKeepsTheChannelOpen() {
         let face: [String: (ink: Double, xHeight: Double)] = [
             "EBGaramond-Regular": (1.085, 0.409),
-            "Besley-Regular": (1.204, 0.520)
+            "Besley-Regular": (1.204, 0.520),
+            "ComicNeue-Regular": (1.045, 0.494)
         ]
         for theme in Theme.allCases {
             guard let m = face[theme.bodyFontName] else {

@@ -1,0 +1,47 @@
+/* Gimmick, a tribute to Yps (1975-2000). Comic Neue for the prose, since
+   nothing records Yps's text face; Alfa Slab One for the heavy slab of the
+   logo's red Y. Sizes and leading travel with the face, in Theme. */
+[data-theme="gimmick"], [data-theme="gimmick"] body {
+    --folio-serif: "Comic Neue", "Chalkboard SE", sans-serif;
+}
+
+body[data-theme="gimmick"] h1,
+body[data-theme="gimmick"] h2,
+body[data-theme="gimmick"] h3 {
+    font-family: "Alfa Slab One", "Rockwell", serif;
+    font-weight: 400;
+    letter-spacing: 0.005em;
+    line-height: 1.15;
+    color: var(--folio-accent);
+}
+/* The Y's blue offset shadow, the "Schatten" of the fan histories. */
+[data-theme="gimmick"] h2 {
+    text-shadow: 0.07em 0.07em 0 var(--folio-link);
+    border-bottom: none;
+}
+
+[data-theme="gimmick"] .folio-title {
+    font-family: "Alfa Slab One", "Rockwell", serif;
+    font-style: normal;
+    font-weight: 400;
+    font-size: calc(36px * var(--folio-title-scale, 1.0));
+    line-height: 1.08;
+    color: var(--folio-card-bg);
+    text-shadow: 0.06em 0.06em 0 var(--folio-link);
+}
+
+/* Without a lead image the title sits on the kangaroo's purple check. The
+   top padding clears the back button; ArticleTitle draws the same band. */
+[data-theme="gimmick"] .folio-header-textonly {
+    margin: -16px -20px 20px -20px;
+    padding: 64px 20px 18px 20px;
+    background-color: var(--folio-band-b);
+    background-image: conic-gradient(var(--folio-band-a) 25%, transparent 0 50%, var(--folio-band-a) 0 75%, transparent 0);
+    background-size: 28px 28px;
+}
+[data-theme="gimmick"] .folio-header-textonly .folio-title {
+    margin: 0;
+    color: var(--folio-card-bg);
+    text-shadow: 0.06em 0.06em 0 var(--folio-link);
+    font-size: calc(32px * var(--folio-title-scale, 1.0));
+}

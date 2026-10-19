@@ -55,8 +55,12 @@ targets:
           - Besley-Bold.ttf
           - Besley-BoldItalic.ttf
           - BarlowSemiCondensed-Regular.ttf
-          - BarlowSemiCondensed-Medium.ttf
           - BarlowSemiCondensed-Bold.ttf
+          - ComicNeue-Regular.ttf
+          - ComicNeue-Italic.ttf
+          - ComicNeue-Bold.ttf
+          - ComicNeue-BoldItalic.ttf
+          - AlfaSlabOne-Regular.ttf
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: NO
         UIApplicationSupportsIndirectInputEvents: YES

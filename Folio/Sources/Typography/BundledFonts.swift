@@ -24,6 +24,8 @@ enum BundledFonts {
     static let garamond = "EB Garamond"
     static let barlow = "Barlow Semi Condensed"
     static let besley = "Besley"
+    static let comicNeue = "Comic Neue"
+    static let alfaSlab = "Alfa Slab One"
 
     static let faces: [Face] = [
         Face(family: garamond, file: "EBGaramond-Regular", ext: "otf", weight: 400, isItalic: false),
@@ -35,7 +37,12 @@ enum BundledFonts {
         Face(family: besley, file: "Besley-Regular", ext: "ttf", weight: 400, isItalic: false),
         Face(family: besley, file: "Besley-Italic", ext: "ttf", weight: 400, isItalic: true),
         Face(family: besley, file: "Besley-Bold", ext: "ttf", weight: 700, isItalic: false),
-        Face(family: besley, file: "Besley-BoldItalic", ext: "ttf", weight: 700, isItalic: true)
+        Face(family: besley, file: "Besley-BoldItalic", ext: "ttf", weight: 700, isItalic: true),
+        Face(family: comicNeue, file: "ComicNeue-Regular", ext: "ttf", weight: 400, isItalic: false),
+        Face(family: comicNeue, file: "ComicNeue-Italic", ext: "ttf", weight: 400, isItalic: true),
+        Face(family: comicNeue, file: "ComicNeue-Bold", ext: "ttf", weight: 700, isItalic: false),
+        Face(family: comicNeue, file: "ComicNeue-BoldItalic", ext: "ttf", weight: 700, isItalic: true),
+        Face(family: alfaSlab, file: "AlfaSlabOne-Regular", ext: "ttf", weight: 400, isItalic: false)
     ]
 
     static func queries(forFamilies families: [String]) -> [String] {

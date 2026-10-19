@@ -91,6 +91,7 @@ struct SettingsView: View {
         case .sepia: "Warm parchment background. Easier on the eyes for long sessions."
         case .dark: "Dim background. Best for low-light and night reading."
         case .debug: "Newsprint and one spot colour. A tribute to De:Bug, the Berlin Magazin für elektronische Lebensaspekte (1997–2014)."
+        case .gimmick: "Comic paper, red slab headings with a blue shadow, and comic lettering for the prose. A tribute to Yps, the comic with a Gimmick in every issue (1975–2000)."
         }
     }
 
@@ -136,19 +137,29 @@ struct SettingsView: View {
 
 // MARK: - Theme picker
 
+/// Six cards no longer fit across, so the row scrolls and opens on the
+/// selected one. Cards keep the width five of them had on the mini.
 private struct ThemePickerRow: View {
     @Binding var selection: Theme
 
     var body: some View {
-        HStack(spacing: 12) {
-            ForEach(Theme.allCases) { theme in
-                ThemeCard(theme: theme, isSelected: selection == theme) {
-                    if selection != theme {
-                        selection = theme
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal) {
+                HStack(spacing: 12) {
+                    ForEach(Theme.allCases) { theme in
+                        ThemeCard(theme: theme, isSelected: selection == theme) {
+                            if selection != theme {
+                                selection = theme
+                            }
+                        }
+                        .frame(width: 52)
+                        .id(theme)
                     }
                 }
-                .frame(maxWidth: .infinity)
+                .padding(.vertical, 2)
             }
+            .scrollIndicators(.hidden)
+            .onAppear { proxy.scrollTo(selection, anchor: .center) }
         }
     }
 }
@@ -261,7 +272,7 @@ struct AboutView: View {
             Section("Credits") {
                 Text("Eigenwort is a personal reader for Wikipedia, inspired by V for Wikipedia (Raureif, 2016) by Frank Rausch. Typographizer logic adapted from the Raureif/Typographizer project (MIT).")
                     .font(.callout)
-                Text("Typography is set in EB Garamond by Georg Mayr-Duffner & Octavio Pardo. The De:Bug theme uses Besley by Owen Earl and Barlow Semi Condensed by Jeremy Tribby. All bundled fonts are under the SIL Open Font License.")
+                Text("Typography is set in EB Garamond by Georg Mayr-Duffner & Octavio Pardo. The De:Bug theme uses Besley by Owen Earl and Barlow Semi Condensed by Jeremy Tribby, the Gimmick theme Comic Neue by Craig Rozynski and Alfa Slab One by José María Solé. All bundled fonts are under the SIL Open Font License.")
                     .font(.callout)
             }
             Section("Source") {

@@ -20,13 +20,19 @@ struct Palette: Sendable {
     let divider: String
     let codeBackground: String
 
+    /// A costume can draw its chrome's edge in a colour of its own rather
+    /// than the quiet hairline, as Gimmick's blue rim around yellow.
+    var edge: UInt32?
+    /// Two tones of a check for the band behind a title without a lead image.
+    var band: (UInt32, UInt32)?
+
     var backgroundColor: Color { Color(rgb: background) }
     var foregroundColor: Color { Color(rgb: foreground) }
     var secondaryColor: Color { Color(rgb: secondary) }
     var accentColor: Color { Color(rgb: accent) }
     var cardColor: Color { Color(rgb: card) }
     /// The edge chrome draws against the page: the header's foot, the reader's bar.
-    var hairlineColor: Color { secondaryColor.opacity(0.2) }
+    var hairlineColor: Color { edge.map { Color(rgb: $0) } ?? secondaryColor.opacity(0.2) }
 
     /// The `:root` block the theme stylesheets used to carry.
     var cssVariables: String {
@@ -40,7 +46,7 @@ struct Palette: Sendable {
             "--folio-accent: \(Self.hex(accent))",
             "--folio-card-bg: \(Self.hex(card))",
             "--folio-code-bg: \(codeBackground)"
-        ].joined(separator: "; ") + ";"
+        ].joined(separator: "; ") + ";" + (band.map { " --folio-band-a: \(Self.hex($0.0)); --folio-band-b: \(Self.hex($0.1));" } ?? "")
     }
 
     private static func hex(_ value: UInt32) -> String {
@@ -106,5 +112,22 @@ extension Palette {
         linkUnderline: "rgba(201, 0, 107, 0.4)",
         divider: "rgba(28, 27, 25, 0.16)",
         codeBackground: "rgba(28, 27, 25, 0.06)"
+    )
+
+    /// Gimmick, after Yps's logo: a red Y with a blue shadow in a yellow oval
+    /// with a blue rim, on comic paper. Links take the blue, 5.2:1 on the
+    /// ground; the band is the kangaroo's purple check.
+    static let gimmick = Palette(
+        background: 0xfff6d5,
+        foreground: 0x1a1a1a,
+        secondary: 0x6e6650,
+        link: 0x086bad,
+        accent: 0xe72921,
+        card: 0xffef00,
+        linkUnderline: "rgba(8, 107, 173, 0.4)",
+        divider: "rgba(26, 26, 26, 0.14)",
+        codeBackground: "rgba(26, 26, 26, 0.06)",
+        edge: 0x086bad,
+        band: (0x7b4fa8, 0x9064be)
     )
 }

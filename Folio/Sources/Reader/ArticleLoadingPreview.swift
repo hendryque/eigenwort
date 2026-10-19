@@ -140,8 +140,7 @@ struct ArticleLoadingPreview: View {
 
                 Text(displayTitle)
                     .font(.custom(theme.titleFontName, size: heroTitleSize, relativeTo: .largeTitle))
-                    .foregroundStyle(.white)
-                    .shadow(color: .black.opacity(0.45), radius: 12, y: 1)
+                    .titleInk(theme, size: heroTitleSize)
                     .padding(.horizontal, 20)
                     .padding(.bottom, 20)
             }
@@ -198,17 +197,65 @@ struct ArticleTitle: View {
     static func scale(_ fontScale: Double) -> Double { min(max(fontScale, 0.85), 1.2) }
 
     var body: some View {
-        Text(title)
-            .font(titleFont)
-            .foregroundStyle(.primary)
-            .padding(.horizontal, 20)
-            // article.css: body's 16px plus the 40px that clears the back button.
-            .padding(.top, 60)
-            .padding(.bottom, 16)
+        if theme.hasLogoTitles, let band = theme.palette.band {
+            // theme-gimmick.css: the title on a check band, its 64px top
+            // padding clearing the back button.
+            Text(title)
+                .font(titleFont)
+                .titleInk(theme, size: size)
+                .padding(.horizontal, 20)
+                .padding(.top, 68)
+                .padding(.bottom, 14)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(CheckPattern(tones: band))
+                .padding(.bottom, 4)
+        } else {
+            Text(title)
+                .font(titleFont)
+                .foregroundStyle(.primary)
+                .padding(.horizontal, 20)
+                // article.css: body's 16px plus the 40px that clears the back button.
+                .padding(.top, 60)
+                .padding(.bottom, 16)
+        }
     }
 
     private var size: Double { theme.textOnlyTitleSize * Self.scale(fontScale) }
     private var titleFont: Font { .custom(theme.titleFontName, size: size, relativeTo: .largeTitle) }
+}
+
+extension View {
+    /// Display titles over a picture or a band, inked as the theme's CSS inks
+    /// them: white with a soft shadow, or Gimmick's yellow with a hard blue one.
+    func titleInk(_ theme: Theme, size: Double) -> some View {
+        let logo = theme.hasLogoTitles
+        return foregroundStyle(logo ? theme.palette.cardColor : .white)
+            .shadow(
+                color: logo ? Color(rgb: theme.palette.link) : .black.opacity(0.45),
+                radius: logo ? 0 : 12,
+                x: logo ? size * 0.06 : 0,
+                y: logo ? size * 0.06 : 1
+            )
+    }
+}
+
+/// The CSS band's conic-gradient check, cell for cell: the first tone takes
+/// the top-right and bottom-left quarter of every 28pt tile.
+private struct CheckPattern: View {
+    let tones: (UInt32, UInt32)
+    private static let cell: CGFloat = 14
+
+    var body: some View {
+        Canvas { context, size in
+            context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(Color(rgb: tones.1)))
+            for row in 0..<Int((size.height / Self.cell).rounded(.up)) {
+                for column in 0..<Int((size.width / Self.cell).rounded(.up)) where (row + column) % 2 == 1 {
+                    let rect = CGRect(x: CGFloat(column) * Self.cell, y: CGFloat(row) * Self.cell, width: Self.cell, height: Self.cell)
+                    context.fill(Path(rect), with: .color(Color(rgb: tones.0)))
+                }
+            }
+        }
+    }
 }
 
 private struct HeroLayout {
