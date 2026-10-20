@@ -6,23 +6,13 @@ in August 2022. I kept using my copy anyway, until Wikipedia changed
 something in their APIs and the Today view went blank. So I built Eigenwort: a
 personal recreation of the parts I used every day. It is an homage, not a replacement. The original's polish took years. This took a few evenings, and it shows in places.
 
-<p align="center">
-  <img src="docs/screenshots/reader.png" width="424" alt="The reader showing the Metropolitan Museum of Art article, set in EB Garamond">
-</p>
+<!-- The film goes here: drop Tools/film/out/eigenwort.mp4 into this spot in GitHub's editor, which turns it into a link that plays inline. -->
 
 <p align="center">
-  <img src="docs/screenshots/today.png" width="246" alt="Today screen with featured and most-read articles as a photo grid">
-  <img src="docs/screenshots/nearby.png" width="246" alt="Nearby articles on a map of Central Park">
-  <img src="docs/screenshots/settings.png" width="246" alt="Settings with appearance and font size">
+  <img src="docs/screenshots/today.png" width="270" alt="Today: the day's featured and most-read articles as a photo grid">
+  <img src="docs/screenshots/typography.png" width="270" alt="A German article set in EB Garamond, with old-style figures and hyphenation">
+  <img src="docs/screenshots/gimmick.png" width="270" alt="The Gimmick theme: comic paper, Comic Neue prose and a yellow title with a blue shadow">
 </p>
-
-<p align="center"><sub>Today, Nearby, Settings</sub></p>
-
-<p align="center">
-  <img src="docs/screenshots/debug.png" width="424" alt="The same reader in the De:Bug theme: newsprint ground, magenta spot colour, prose set in Besley">
-</p>
-
-<p align="center"><sub>The De:Bug theme, which swaps the prose face as well as the palette</sub></p>
 
 ## What it does
 
@@ -76,6 +66,11 @@ iPhone first. Sideloads fine with a free Apple ID. That is how I run it.
 Tests run with `xcodebuild test -scheme Folio -destination 'platform=iOS
 Simulator,name=iPhone 16'`. They cover the reader document's invariants rather
 than the UI.
+
+The film and the screenshots above come from `Tools/film`. `record.sh` records
+the simulator through the app's debug demo hooks, then `npm install`,
+`npm run film` and `npm run stills` in that folder render them with
+[Remotion](https://www.remotion.dev).
 
 If you plan to commit, enable the repo's hooks once with
 `git config core.hooksPath .githooks`. They run [gitleaks](https://github.com/gitleaks/gitleaks)

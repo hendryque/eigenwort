@@ -1,0 +1,23 @@
+{
+  "name": "eigenwort-film",
+  "private": true,
+  "description": "The README film and screenshots, rendered from simulator recordings.",
+  "scripts": {
+    "studio": "remotion studio",
+    "film": "remotion render Film out/eigenwort.mp4 --codec=h264 --crf=20",
+    "stills": "remotion still ShotToday ../../docs/screenshots/today.png && remotion still ShotTypography ../../docs/screenshots/typography.png && remotion still ShotGimmick ../../docs/screenshots/gimmick.png && pngquant --quality=70-92 --speed 1 --force --ext .png ../../docs/screenshots/today.png ../../docs/screenshots/typography.png ../../docs/screenshots/gimmick.png && oxipng -o 4 --strip safe -q ../../docs/screenshots/today.png ../../docs/screenshots/typography.png ../../docs/screenshots/gimmick.png"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.537",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.537"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.31",
+    "typescript": "^7.0.2"
+  },
+  "allowScripts": {
+    "esbuild": false
+  }
+}
