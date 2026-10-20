@@ -20,6 +20,9 @@ struct NearbyView: View {
     @State private var lastQueryRadius: Int?
     @State private var didInitializeCamera = false
     @State private var fetchTask: Task<Void, Never>?
+    #if DEBUG
+    @State private var didDemoSelect = false
+    #endif
 
     private var language: String { settingsList.first?.defaultLanguage ?? "en" }
 
@@ -189,11 +192,30 @@ struct NearbyView: View {
             selectedID = nil
             lastQueryCoord = center
             lastQueryRadius = radius
+            #if DEBUG
+            selectForDemo()
+            #endif
         } catch {
             if Task.isCancelled { return }
             failure = LoadFailure(error)
         }
     }
+
+    #if DEBUG
+    /// `-demoSelectNearby 2 -demoSelectAfter 4` selects that pin once the
+    /// first results are in, as a tap would, for the film.
+    private func selectForDemo() {
+        let defaults = UserDefaults.standard
+        guard !didDemoSelect, defaults.object(forKey: "demoSelectNearby") != nil else { return }
+        didDemoSelect = true
+        let index = defaults.integer(forKey: "demoSelectNearby")
+        let delay = defaults.double(forKey: "demoSelectAfter")
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(delay))
+            if articles.indices.contains(index) { selectedID = articles[index].id }
+        }
+    }
+    #endif
 
     private func distance(_ a: CLLocationCoordinate2D, _ b: CLLocationCoordinate2D) -> CLLocationDistance {
         CLLocation(latitude: a.latitude, longitude: a.longitude)
