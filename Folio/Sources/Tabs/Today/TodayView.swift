@@ -84,7 +84,7 @@ struct TodayView: View {
         defer { isLoading = false }
         failure = nil
         do {
-            let fetched = try await WikipediaClient.shared.featured(language: language)
+            let fetched = try await WikipediaClient.shared.featured(language: language, date: feedDate)
             feed = fetched
             lastFetched = .now
             // Warm the first screenful of tiles so the grid paints images
@@ -99,6 +99,18 @@ struct TodayView: View {
         } catch {
             failure = LoadFailure(error)
         }
+    }
+
+    /// Today's, except in DEBUG with `-screenshotTodayDate 2026-05-12`, which
+    /// pins a day so the film and screenshots show a chosen grid.
+    private var feedDate: Date {
+        #if DEBUG
+        if let pinned = UserDefaults.standard.string(forKey: "screenshotTodayDate"),
+           let date = try? Date(pinned, strategy: .iso8601.year().month().day()) {
+            return date
+        }
+        #endif
+        return .now
     }
 
     private var isStale: Bool {

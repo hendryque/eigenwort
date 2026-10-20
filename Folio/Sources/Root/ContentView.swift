@@ -429,6 +429,16 @@ extension ContentView {
             let lang = defaults.string(forKey: "screenshotLanguage") ?? language
             todayPath = [ArticleDestination(title: article, language: lang)]
         }
+        // `-demoOpenArticle "Title" -demoOpenAfter 2.5` opens an article from
+        // the tab after a pause, as a tap would, for the film.
+        if let article = defaults.string(forKey: "demoOpenArticle") {
+            let lang = defaults.string(forKey: "screenshotLanguage") ?? language
+            let delay = defaults.double(forKey: "demoOpenAfter")
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(delay))
+                todayPath.append(ArticleDestination(title: article, language: lang))
+            }
+        }
         if defaults.bool(forKey: "screenshotSettings") {
             showSettings = true
         }

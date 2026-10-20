@@ -318,6 +318,28 @@ struct ArticleWebView: UIViewRepresentable {
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             // Fallback only: `painted` normally reveals us ~500ms earlier.
             markPainted()
+            #if DEBUG
+            // `-demoScrollTo 1150 -demoScrollSeconds 4` reads down with an eased
+            // scroll a second after landing, for the film.
+            let scrollTo = UserDefaults.standard.double(forKey: "demoScrollTo")
+            if scrollTo > 0 {
+                let ms = UserDefaults.standard.double(forKey: "demoScrollSeconds") * 1000
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    webView.evaluateJavaScript("""
+                    (function (to, ms) {
+                        const from = window.scrollY, start = performance.now();
+                        function step(now) {
+                            const t = Math.min(1, (now - start) / ms);
+                            const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+                            window.scrollTo(0, from + (to - from) * e);
+                            if (t < 1) requestAnimationFrame(step);
+                        }
+                        requestAnimationFrame(step);
+                    })(\(scrollTo), \(ms));
+                    """)
+                }
+            }
+            #endif
             guard initialScrollY > 0 else { return }
             let y = initialScrollY
             initialScrollY = 0  // restore only once per load

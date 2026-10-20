@@ -131,6 +131,20 @@ struct ArticleReaderView: View {
             refreshTask?.cancel()
             chrome?.isHeaderHidden = false
         }
+        #if DEBUG
+        // `-demoCycleThemes 1.6` steps through the looks as the theme button
+        // would, once the page is up, for the film.
+        .onChange(of: webViewReady) { _, ready in
+            let interval = UserDefaults.standard.double(forKey: "demoCycleThemes")
+            guard ready, interval > 0 else { return }
+            Task { @MainActor in
+                for _ in 0..<4 {
+                    try? await Task.sleep(for: .seconds(interval))
+                    cycleTheme()
+                }
+            }
+        }
+        #endif
     }
 
     private enum ContentPhase: Int { case loading, preview, web }
