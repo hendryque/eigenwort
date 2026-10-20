@@ -5,6 +5,7 @@ export const FPS = 30;
 
 export const clips = {
 	today: {file: 'clips/today.mp4', start: 4.3, tap: 8.7},
+	nearby: {file: 'clips/nearby.mp4', start: 3.0, tap: 6.9},
 	read: {file: 'clips/read.mp4', start: 1.9, scrollFrom: 3.55, scrollTo: 7.45},
 	themes: {
 		file: 'clips/themes.mp4',
@@ -22,10 +23,11 @@ export const clips = {
 export const scenes = {
 	opening: {from: 0, length: 4},
 	today: {from: 4, length: 7.5},
-	type: {from: 11.5, length: 8},
-	themes: {from: 19.5, length: 10},
-	end: {from: 29.5, length: 5},
+	nearby: {from: 11.5, length: 7},
+	type: {from: 18.5, length: 8},
+	themes: {from: 26.5, length: 10},
+	end: {from: 36.5, length: 5},
 } as const;
 
-export const total = 34.5;
+export const total = 41.5;
 export const frames = (seconds: number) => Math.round(seconds * FPS);

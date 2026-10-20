@@ -1,7 +1,8 @@
 import React from 'react';
 import {Composition, Still, continueRender, delayRender, staticFile} from 'remotion';
-import {Film} from './Film';
-import {ShotGimmick, ShotToday, ShotTypography} from './Shots';
+import {FilmTall, FilmWide} from './Film';
+import {tall, wide} from './layout';
+import {ShotMagazines, ShotToday, ShotTypography} from './Shots';
 import {FPS, frames, total} from './timing';
 
 // EB Garamond, as bundled with the app, before anything renders.
@@ -16,9 +17,10 @@ Promise.all([
 
 export const Root: React.FC = () => (
 	<>
-		<Composition id="Film" component={Film} width={1920} height={1080} fps={FPS} durationInFrames={frames(total)} />
+		<Composition id="Film" component={FilmWide} width={wide.width} height={wide.height} fps={FPS} durationInFrames={frames(total)} />
+		<Composition id="FilmPortrait" component={FilmTall} width={tall.width} height={tall.height} fps={FPS} durationInFrames={frames(total)} />
 		<Still id="ShotToday" component={ShotToday} width={900} height={1400} />
 		<Still id="ShotTypography" component={ShotTypography} width={900} height={1400} />
-		<Still id="ShotGimmick" component={ShotGimmick} width={900} height={1400} />
+		<Still id="ShotMagazines" component={ShotMagazines} width={900} height={1400} />
 	</>
 );

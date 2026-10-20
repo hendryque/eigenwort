@@ -1,12 +1,8 @@
 import React from 'react';
 import {AbsoluteFill, Img, OffthreadVideo, Sequence, interpolate, staticFile, useCurrentFrame} from 'remotion';
+import {Layout, LayoutContext, tall, useLayout, wide} from './layout';
 import {Backdrop, Card, Look, Phone, SCREEN, Touch, ink, useArrival, useFade} from './parts';
 import {FPS, clips, frames, scenes} from './timing';
-
-const PHONE_H = 900;
-// Cards on the left, the phone on the right, as the storyboard set them.
-const cardSlot: React.CSSProperties = {position: 'absolute', left: 150, top: '50%', transform: 'translateY(-50%)'};
-const phoneSlot: React.CSSProperties = {position: 'absolute', right: 170, top: (1080 - PHONE_H) / 2};
 
 const Title: React.FC<{extra?: string}> = ({extra}) => {
 	const icon = useArrival(0, 20);
@@ -38,13 +34,14 @@ const Opening: React.FC = () => (
 
 const Today: React.FC = () => {
 	const clip = clips.today;
+	const {card, phone} = useLayout();
 	return (
 		<AbsoluteFill style={{opacity: useFade(frames(scenes.today.length))}}>
-			<div style={cardSlot}>
+			<div style={card.slot}>
 				<Card top="Today" bottom="at a glance" />
 			</div>
-			<div style={{...phoneSlot, ...useArrival(4, 60)}}>
-				<Phone clip={clip} height={PHONE_H}>
+			<div style={{...phone.slot, ...useArrival(4, 60)}}>
+				<Phone clip={clip} height={phone.height}>
 					{/* The featured article, top left of the grid. */}
 					<Touch x={0.25} y={0.27} at={clip.tap - clip.start - 0.1} />
 				</Phone>
@@ -53,34 +50,51 @@ const Today: React.FC = () => {
 	);
 };
 
+const Nearby: React.FC = () => {
+	const clip = clips.nearby;
+	const {card, phone} = useLayout();
+	return (
+		<AbsoluteFill style={{opacity: useFade(frames(scenes.nearby.length))}}>
+			<div style={card.slot}>
+				<Card top="Nearby" bottom="around you" />
+			</div>
+			<div style={{...phone.slot, ...useArrival(4, 60)}}>
+				<Phone clip={clip} height={phone.height}>
+					{/* A pin by the Met; the carousel follows to its article. */}
+					<Touch x={0.51} y={0.47} at={clip.tap - clip.start - 0.1} />
+				</Phone>
+			</div>
+		</AbsoluteFill>
+	);
+};
+
 // The passage magnified: old-style 1925 to 1933, three hyphenations and an
 // italic Bauhaus, in source pixels of the read clip's last frame.
-const ZOOM = {x: 50, y: 910, width: 1110, height: 620, shown: 820, at: 6};
+const ZOOM = {x: 50, y: 910, width: 1110, height: 620, at: 6};
 
 const Typography: React.FC = () => {
 	const clip = clips.read;
 	const frame = useCurrentFrame();
-	const scale = ZOOM.shown / ZOOM.width;
+	const {card, phone, zoom} = useLayout();
+	const scale = zoom.shown / ZOOM.width;
 	const zoomIn = interpolate(frame, [frames(ZOOM.at), frames(ZOOM.at + 0.5)], [0, 1], {
 		extrapolateLeft: 'clamp',
 		extrapolateRight: 'clamp',
 	});
 	return (
 		<AbsoluteFill style={{opacity: useFade(frames(scenes.type.length))}}>
-			<div style={{...cardSlot, opacity: 1 - zoomIn * 0.85}}>
+			<div style={{...card.slot, opacity: 1 - zoomIn * 0.85}}>
 				<Card top="Set" bottom="like a book" />
 			</div>
-			<div style={{...phoneSlot, ...useArrival(4, 60)}}>
-				<Phone clip={clip} height={PHONE_H}>
+			<div style={{...phone.slot, ...useArrival(4, 60)}}>
+				<Phone clip={clip} height={phone.height}>
 					<Touch x={0.62} y={0.78} toY={0.3} at={clip.scrollFrom - clip.start} over={clip.scrollTo - clip.scrollFrom} />
 				</Phone>
 			</div>
 			<div
 				style={{
-					position: 'absolute',
-					right: 470,
-					top: 300,
-					width: ZOOM.shown,
+					...zoom.slot,
+					width: zoom.shown,
 					height: ZOOM.height * scale,
 					borderRadius: 22,
 					overflow: 'hidden',
@@ -116,17 +130,18 @@ const Themes: React.FC = () => {
 		interpolate(t, [s.at - clip.start, s.at - clip.start + 0.4], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}),
 	);
 	const current: Look = clip.switches.reduce<Look>((look, s, i) => (fades[i] > 0.5 ? s.theme : look), 'light');
+	const {card, phone} = useLayout();
 	return (
 		<AbsoluteFill style={{opacity: useFade(frames(scenes.themes.length))}}>
 			<Backdrop look="light" />
 			{clip.switches.map((s, i) => (
 				<Backdrop key={s.theme} look={s.theme} opacity={fades[i]} />
 			))}
-			<div style={cardSlot}>
-				<Card top="Five themes" bottom="two of them magazines" look={current} size={104} />
+			<div style={card.slot}>
+				<Card top="Five themes" bottom="two of them magazines" look={current} size={card.themesSize} />
 			</div>
-			<div style={{...phoneSlot, ...useArrival(4, 60)}}>
-				<Phone clip={clip} height={PHONE_H}>
+			<div style={{...phone.slot, ...useArrival(4, 60)}}>
+				<Phone clip={clip} height={phone.height}>
 					{/* The theme button, fourth of six in the bar. */}
 					{clip.switches.map((s) => (
 						<Touch key={s.theme} x={0.57} y={0.923} at={s.at - clip.start - 0.15} />
@@ -143,7 +158,7 @@ const End: React.FC = () => (
 	</AbsoluteFill>
 );
 
-export const Film: React.FC = () => {
+const Film: React.FC = () => {
 	const scene = (key: keyof typeof scenes, node: React.ReactNode) => (
 		<Sequence from={frames(scenes[key].from)} durationInFrames={frames(scenes[key].length)}>
 			{node}
@@ -154,9 +169,19 @@ export const Film: React.FC = () => {
 			<Backdrop look="light" />
 			{scene('opening', <Opening />)}
 			{scene('today', <Today />)}
+			{scene('nearby', <Nearby />)}
 			{scene('type', <Typography />)}
 			{scene('themes', <Themes />)}
 			{scene('end', <End />)}
 		</AbsoluteFill>
 	);
 };
+
+const In: React.FC<{layout: Layout}> = ({layout}) => (
+	<LayoutContext.Provider value={layout}>
+		<Film />
+	</LayoutContext.Provider>
+);
+
+export const FilmWide = () => <In layout={wide} />;
+export const FilmTall = () => <In layout={tall} />;

@@ -11,7 +11,7 @@ https://github.com/user-attachments/assets/dc2a34c4-daac-46c9-aefd-7ead33251243
 <p align="center">
   <img src="docs/screenshots/today.png" width="270" alt="Today: the day's featured and most-read articles as a photo grid">
   <img src="docs/screenshots/typography.png" width="270" alt="A German article set in EB Garamond, with old-style figures and hyphenation">
-  <img src="docs/screenshots/gimmick.png" width="270" alt="The Gimmick theme: comic paper, Comic Neue prose and a yellow title with a blue shadow">
+  <img src="docs/screenshots/magazines.png" width="270" alt="The same article in the two magazine themes: De:Bug, Besley and magenta links on grey paper, and Gimmick, Comic Neue on comic yellow">
 </p>
 
 ## What it does

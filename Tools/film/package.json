@@ -4,8 +4,8 @@
   "description": "The README film and screenshots, rendered from simulator recordings.",
   "scripts": {
     "studio": "remotion studio",
-    "film": "remotion render Film out/eigenwort.mp4 --codec=h264 --crf=20",
-    "stills": "remotion still ShotToday ../../docs/screenshots/today.png && remotion still ShotTypography ../../docs/screenshots/typography.png && remotion still ShotGimmick ../../docs/screenshots/gimmick.png && pngquant --quality=70-92 --speed 1 --force --ext .png ../../docs/screenshots/today.png ../../docs/screenshots/typography.png ../../docs/screenshots/gimmick.png && oxipng -o 4 --strip safe -q ../../docs/screenshots/today.png ../../docs/screenshots/typography.png ../../docs/screenshots/gimmick.png"
+    "film": "remotion render Film out/eigenwort.mp4 --codec=h264 --crf=20 && remotion render FilmPortrait out/eigenwort-portrait.mp4 --codec=h264 --crf=20",
+    "stills": "remotion still ShotToday ../../docs/screenshots/today.png && remotion still ShotTypography ../../docs/screenshots/typography.png && remotion still ShotMagazines ../../docs/screenshots/magazines.png && pngquant --quality=70-92 --speed 1 --force --ext .png ../../docs/screenshots/today.png ../../docs/screenshots/typography.png ../../docs/screenshots/magazines.png && oxipng -o 4 --strip safe -q ../../docs/screenshots/today.png ../../docs/screenshots/typography.png ../../docs/screenshots/magazines.png"
   },
   "dependencies": {
     "@remotion/cli": "^4.0.537",

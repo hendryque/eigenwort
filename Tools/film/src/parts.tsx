@@ -9,6 +9,7 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
+import {useLayout} from './layout';
 import {FPS, frames} from './timing';
 
 // The recordings are the iPhone 17 Pro's 1206 × 2622 screen.
@@ -29,7 +30,7 @@ export const ink: Record<Look, {strong: string; quiet: string}> = {
 
 export const Backdrop: React.FC<{look: Look; opacity?: number}> = ({look, opacity = 1}) => (
 	<Img
-		src={staticFile(`backdrops/${look}-wide.png`)}
+		src={staticFile(`backdrops/${look}-${useLayout().shape}.png`)}
 		style={{position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity}}
 	/>
 );
@@ -55,13 +56,14 @@ export const Card: React.FC<{top: string; bottom: string; look?: Look; size?: nu
 	top,
 	bottom,
 	look = 'light',
-	size = 124,
+	size,
 	delay = 0,
 }) => {
+	const {card} = useLayout();
 	const arrival = useArrival(delay, 30);
-	const line: React.CSSProperties = {fontFamily: 'EBG', fontSize: size, lineHeight: 1.02, letterSpacing: '-0.005em'};
+	const line: React.CSSProperties = {fontFamily: 'EBG', fontSize: size ?? card.size, lineHeight: 1.02, letterSpacing: '-0.005em'};
 	return (
-		<div style={{...arrival}}>
+		<div style={{...arrival, textAlign: card.align}}>
 			<div style={{...line, color: ink[look].strong}}>{top}</div>
 			<div style={{...line, fontStyle: 'italic', color: ink[look].quiet}}>{bottom}</div>
 		</div>

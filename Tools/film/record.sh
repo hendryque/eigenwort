@@ -25,6 +25,9 @@ xcrun simctl boot "$SIM" 2>/dev/null || true
 xcrun simctl bootstatus "$SIM" -b >/dev/null 2>&1 || true
 xcrun simctl install "$SIM" "$APP"
 xcrun simctl ui "$SIM" appearance light >/dev/null 2>&1 || true
+# Nearby needs a place: the Met, on the edge of Central Park.
+xcrun simctl privacy "$SIM" grant location "$BUNDLE" >/dev/null 2>&1 || true
+xcrun simctl location "$SIM" set 40.7794,-73.9632 >/dev/null 2>&1 || true
 xcrun simctl status_bar "$SIM" override --time 9:41 --batteryState charged --batteryLevel 100 \
     --cellularMode active --cellularBars 4 --wifiBars 3 --dataNetwork wifi
 
@@ -58,6 +61,7 @@ DAY=(-screenshotTodayDate 2026-07-11)
 # The tap waits until Today has prefetched its top articles, so the page opens at once.
 clip today 13 -screenshotTheme light -screenshotTab today "${DAY[@]}" \
     -demoOpenArticle "Meurig ab Arthfael" -screenshotLanguage en -demoOpenAfter 7
+clip nearby 12 -screenshotTheme light -screenshotTab nearby -demoSelectNearby 3 -demoSelectAfter 4
 clip read 9 -screenshotTheme light -screenshotArticle Bauhaus -screenshotLanguage de \
     -screenshotScrollY 0 -demoScrollTo 1150 -demoScrollSeconds 4
 clip themes 13 -screenshotTheme light -screenshotArticle "Metropolitan Museum of Art" -screenshotLanguage en \
@@ -66,6 +70,8 @@ clip themes 13 -screenshotTheme light -screenshotArticle "Metropolitan Museum of
 still today -screenshotTheme light -screenshotTab today "${DAY[@]}"
 still typography -screenshotTheme light -screenshotArticle Bauhaus -screenshotLanguage de \
     -screenshotScrollY 1100 -screenshotReadDown 180
+still debug -screenshotTheme debug -screenshotArticle "Metropolitan Museum of Art" -screenshotLanguage en \
+    -screenshotScrollY 0
 still gimmick -screenshotTheme gimmick -screenshotArticle "Metropolitan Museum of Art" -screenshotLanguage en \
     -screenshotScrollY 0
 xcrun simctl launch "$SIM" "$BUNDLE" -screenshotTheme light >/dev/null 2>&1 || true
