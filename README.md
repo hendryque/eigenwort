@@ -8,6 +8,8 @@ personal recreation of the parts I used every day. It is an homage, not a replac
 
 <!-- The film goes here: drop Tools/film/out/eigenwort.mp4 into this spot in GitHub's editor, which turns it into a link that plays inline. -->
 
+https://github.com/user-attachments/assets/5e79eb29-3367-4263-85c9-cec51a9c6552
+
 <p align="center">
   <img src="docs/screenshots/today.png" width="270" alt="Today: the day's featured and most-read articles as a photo grid">
   <img src="docs/screenshots/typography.png" width="270" alt="A German article set in EB Garamond, with old-style figures and hyphenation">
