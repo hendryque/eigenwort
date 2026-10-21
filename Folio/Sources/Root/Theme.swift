@@ -140,6 +140,17 @@ enum Theme: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
+    /// Tables and captions are em of the body, so a smaller body shrinks them.
+    /// This scales them back to Light's: x-heights of the data face are 0.508em
+    /// in San Francisco, 0.506 in Barlow and 0.494 in Comic Neue.
+    var dataScale: Double {
+        switch self {
+        case .debug: 1.29
+        case .gimmick: 1.23
+        default: 1
+        }
+    }
+
     /// The cap in rem holds a fixed character count per face, so a wider face
     /// needs a wider one to reach the same measure. Only binds on iPad.
     var measureRem: Double {

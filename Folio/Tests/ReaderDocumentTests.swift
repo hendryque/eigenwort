@@ -57,6 +57,23 @@ struct ReaderDocumentTests {
             #expect(html.contains("--folio-body-size: \(String(format: "%.1f", theme.bodySize))px"))
             #expect(html.contains("--folio-body-leading: \(String(format: "%.3f", theme.bodyLineHeight))"))
             #expect(html.contains("--folio-measure: \(String(format: "%.0f", theme.measureRem))rem"))
+            #expect(html.contains("--folio-data-scale: \(String(format: "%.3f", theme.dataScale))"))
+        }
+    }
+
+    /// Tables and captions are em of the body, which the magazines shrink to
+    /// match Garamond. Their data face should still read at Light's size.
+    @Test("Every theme's data reads at Light's size")
+    func dataKeepsLightsSize() {
+        let light = 18 * 0.508
+        for theme in Theme.allCases {
+            let xHeight = switch theme {
+            case .debug: 0.506
+            case .gimmick: 0.494
+            default: 0.508
+            }
+            let ratio = theme.bodySize * theme.dataScale * xHeight / light
+            #expect(abs(ratio - 1) < 0.02, "\(theme.displayName) data reads at \(ratio) of Light's")
         }
     }
 

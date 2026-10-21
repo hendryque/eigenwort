@@ -1,7 +1,8 @@
 /* Besley stands in for Sentinel in the prose, Barlow Semi Condensed for Fakt
-   on the display type. Sizes and leading travel with the face, in Theme. */
+   on the display type and the data. Sizes travel with the face, in Theme. */
 [data-theme="debug"], [data-theme="debug"] body {
     --folio-serif: "Besley", "New York", ui-serif, Georgia, serif;
+    --folio-sans: "Barlow Semi Condensed", "Helvetica Neue", sans-serif;
 }
 
 body[data-theme="debug"] h1,
@@ -26,7 +27,8 @@ body[data-theme="debug"] h4 {
     font-size: calc(38px * var(--folio-title-scale, 1.0));
 }
 
+[data-theme="debug"] .folio-colophon { font-family: var(--folio-sans); }
+/* Captions upright, as magazines set them: no Barlow italic is bundled. */
 [data-theme="debug"] figcaption,
-[data-theme="debug"] .folio-colophon {
-    font-family: "Barlow Semi Condensed", "Helvetica Neue", sans-serif;
-}
+[data-theme="debug"] .thumbcaption,
+[data-theme="debug"] .infobox-caption { font-style: normal; }

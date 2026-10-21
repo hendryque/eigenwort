@@ -132,8 +132,8 @@ enum ArticleHTML {
     /// string, so a switched article cannot keep the colours it opened with.
     static func rootStyle(theme: Theme, fontScale: Double) -> String {
         String(
-            format: "--folio-body-size: %.1fpx; --folio-body-leading: %.3f; --folio-measure: %.0frem; ",
-            theme.bodySize, theme.bodyLineHeight, theme.measureRem
+            format: "--folio-body-size: %.1fpx; --folio-body-leading: %.3f; --folio-measure: %.0frem; --folio-data-scale: %.3f; ",
+            theme.bodySize, theme.bodyLineHeight, theme.measureRem, theme.dataScale
         ) + theme.palette.cssVariables + String(
             format: " --folio-font-scale: %.3f; --folio-title-scale: %.3f;",
             fontScale, ArticleTitle.scale(fontScale)

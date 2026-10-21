@@ -1,8 +1,9 @@
-/* Gimmick, a tribute to Yps (1975-2000). Comic Neue for the prose, since
+/* Gimmick, a tribute to Yps (1975-2000). Comic Neue for prose and data, since
    nothing records Yps's text face; Alfa Slab One for the heavy slab of the
    logo's red Y. Sizes and leading travel with the face, in Theme. */
 [data-theme="gimmick"], [data-theme="gimmick"] body {
     --folio-serif: "Comic Neue", "Chalkboard SE", sans-serif;
+    --folio-sans: var(--folio-serif);
 }
 
 body[data-theme="gimmick"] h1,
