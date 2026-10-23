@@ -48,27 +48,21 @@ private struct NearbyCard: View {
     // cards beyond that fetch their own lazily (LazyHStack: visible ones only).
     @State private var fetchedThumbnail: URL?
 
+    private static let shape = RoundedRectangle(cornerRadius: 12, style: .continuous)
+
     var body: some View {
         NavigationLink(value: ArticleDestination(title: article.title, language: language)) {
             HStack(spacing: 12) {
-                RemoteImage(url: article.thumbnailURL ?? fetchedThumbnail) { phase in
-                    switch phase {
-                    case .success(let image): image.resizable().scaledToFill()
-                    case .failure, .empty: Color(.tertiarySystemFill)
-                    @unknown default: Color(.tertiarySystemFill)
-                    }
-                }
-                .frame(width: 64, height: 64)
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                RowThumbnail(url: article.thumbnailURL ?? fetchedThumbnail, side: 64, cornerRadius: 8, ground: theme.paper)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(article.title.replacingOccurrences(of: "_", with: " "))
-                        .font(.custom("EBGaramond-Medium", size: 16, relativeTo: .body))
+                        .font(theme.font(.text, .medium, size: 16, relativeTo: .body))
                         .foregroundStyle(.primary)
                         .lineLimit(2)
                     if let desc = article.description, !desc.isEmpty {
                         Text(desc)
-                            .font(.caption)
+                            .font(theme.dataFont(.caption))
                             .foregroundStyle(.secondary)
                             .lineLimit(2)
                     }
@@ -76,8 +70,13 @@ private struct NearbyCard: View {
                 Spacer(minLength: 0)
             }
             .padding(12)
-            .background(theme.barBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .background(theme.barBackground, in: Self.shape)
+            .overlay {
+                // Gimmick's rim, as on its search oval.
+                if let edge = theme.palette.edge {
+                    Self.shape.strokeBorder(Color(rgb: edge), lineWidth: 1.5)
+                }
+            }
         }
         .buttonStyle(.plain)
         .task(id: article.id) {

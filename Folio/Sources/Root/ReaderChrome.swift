@@ -6,8 +6,25 @@ import SwiftUI
 @MainActor @Observable
 final class ReaderChrome {
     var headerHeight: CGFloat = 0
-    /// Where the header ends on screen. A pushed view does not inherit the
-    /// root's inset for it, so the reader pads itself down to this line.
+    /// Where the header ends on screen. Views in a navigation stack do not
+    /// inherit the root's inset for it, so they pad down to this line.
     var headerBottom: CGFloat = 0
     var isHeaderHidden = false
+}
+
+extension View {
+    /// Pads a screen down to where the header rests. Measured outside the
+    /// padding, so the padding cannot move what it is measured from.
+    func clearsHeader() -> some View { modifier(ClearsHeader()) }
+}
+
+private struct ClearsHeader: ViewModifier {
+    @Environment(ReaderChrome.self) private var chrome: ReaderChrome?
+    @State private var top: CGFloat = 0
+
+    func body(content: Content) -> some View {
+        content
+            .safeAreaPadding(.top, max(0, (chrome?.headerBottom ?? 0) - top))
+            .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: { top = $0 }
+    }
 }

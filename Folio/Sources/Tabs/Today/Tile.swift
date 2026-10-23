@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct Tile: View {
+    @Environment(\.folioTheme) private var theme
     let article: ArticleSummary
     let tintIndex: Int
 
@@ -84,8 +85,8 @@ struct Tile: View {
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text(article.title.replacingOccurrences(of: "_", with: " "))
-                        .font(.custom("EBGaramond-MediumItalic", size: 22, relativeTo: .title3))
-                        .foregroundStyle(.white)
+                        .font(theme.font(.display, .medium, size: 22, relativeTo: .title3))
+                        .tileInk(theme, size: 22)
                         .lineLimit(3)
                         .multilineTextAlignment(.leading)
                         .fixedSize(horizontal: false, vertical: true)
@@ -95,7 +96,7 @@ struct Tile: View {
                         // glance; tracked caps forced letter-by-letter reading
                         // and ran to three lines on German descriptions.
                         Text(desc)
-                            .font(.custom("EBGaramond-Medium", size: 13, relativeTo: .caption))
+                            .font(theme.font(.text, .medium, size: 13, relativeTo: .caption))
                             .foregroundStyle(.white.opacity(0.85))
                             .lineLimit(2)
                             .multilineTextAlignment(.leading)
@@ -110,5 +111,18 @@ struct Tile: View {
             .clipped()
         }
         .aspectRatio(3.0 / 4.0, contentMode: .fit)
+    }
+}
+
+private extension View {
+    /// White over the scrim, or Gimmick's yellow with the hard blue shadow its
+    /// heroes wear, so a tile looks like the article it opens.
+    @ViewBuilder
+    func tileInk(_ theme: Theme, size: Double) -> some View {
+        if theme.hasLogoTitles {
+            titleInk(theme, size: size)
+        } else {
+            foregroundStyle(.white)
+        }
     }
 }

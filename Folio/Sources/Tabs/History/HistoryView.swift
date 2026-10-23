@@ -22,6 +22,8 @@ struct HistoryView: View {
                     ForEach(merged) { item in
                         Row(item: item, onRerunSearch: onRerunSearch)
                             .listRowSeparator(.visible)
+                            .listRowSeparatorTint(theme.palette.listRuleColor)
+                            .listRowBackground(Color.clear)
                     }
                     .onDelete(perform: delete)
                 }
@@ -116,7 +118,7 @@ private struct ArticleRowLabel: View {
     var body: some View {
         HStack(spacing: 12) {
             Text(entry.title.replacingOccurrences(of: "_", with: " "))
-                .font(.custom("EBGaramond-Bold", size: 19, relativeTo: .body))
+                .font(theme.font(.text, .bold, size: 19, relativeTo: .body))
                 .foregroundStyle(theme.palette.accentColor)
                 .lineLimit(2)
             Spacer(minLength: 8)
@@ -136,7 +138,7 @@ private struct SearchRowLabel: View {
                 .font(.system(size: 14, weight: .regular))
                 .foregroundStyle(theme.palette.accentColor)
             Text(entry.query)
-                .font(.custom("EBGaramond-Regular", size: 18, relativeTo: .body))
+                .font(theme.font(.text, size: 18, relativeTo: .body))
                 .foregroundStyle(theme.palette.accentColor)
                 .lineLimit(1)
             Spacer(minLength: 8)
@@ -147,11 +149,12 @@ private struct SearchRowLabel: View {
 }
 
 private struct LanguageBadge: View {
+    @Environment(\.folioTheme) private var theme
     let language: String
 
     var body: some View {
         Text(language.uppercased())
-            .font(.system(size: 13, weight: .semibold))
+            .font(theme.dataFont(.footnote, .bold))
             .foregroundStyle(.secondary)
     }
 }

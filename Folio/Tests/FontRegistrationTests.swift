@@ -26,10 +26,15 @@ struct FontRegistrationTests {
         return (walker?.allObjects as? [URL] ?? []).filter { $0.pathExtension == "swift" }
     }
 
-    /// PostScript names SwiftUI asks for: each theme's, and any a view names
-    /// directly. The files are named after their PostScript names.
+    /// PostScript names SwiftUI asks for: each theme's, each role's, and any a
+    /// view names directly. The files are named after their PostScript names.
     private var namedInCode: Set<String> {
         var names = Set(Theme.allCases.flatMap { [$0.bodyFontName, $0.bodyBoldFontName, $0.titleFontName] })
+        for theme in Theme.allCases {
+            for role in TypeRole.allCases {
+                names.formUnion(TypeWeight.allCases.compactMap { theme.faceName(role, $0) })
+            }
+        }
         for file in sourceFiles {
             guard let text = try? String(contentsOf: file, encoding: .utf8) else { continue }
             for match in text.matches(of: #/\.custom\("([^"]+)"/#) { names.insert(String(match.1)) }

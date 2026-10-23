@@ -49,7 +49,7 @@ struct LoadFailureView: View {
     var body: some View {
         VStack(spacing: isCompact ? 10 : 18) {
             Text(headline)
-                .font(.headline)
+                .font(theme.dataFont(.headline, .bold))
                 .foregroundStyle(.secondary)
             if !isCompact {
                 ParagraphMark(unit: 1.5, isWordMissing: true)
@@ -57,12 +57,12 @@ struct LoadFailureView: View {
                     .accessibilityHidden(true)
             }
             Text(failure.reason)
-                .font(.callout)
+                .font(theme.dataFont(.callout))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
             Button(action: action.run) {
                 Text(action.label)
-                    .font(.body.weight(.semibold))
+                    .font(theme.dataFont(.body, .bold))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(theme.barBackground, in: shape)

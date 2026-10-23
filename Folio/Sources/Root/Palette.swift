@@ -33,6 +33,8 @@ struct Palette: Sendable {
     var cardColor: Color { Color(rgb: card) }
     /// The edge chrome draws against the page: the header's foot, the reader's bar.
     var hairlineColor: Color { edge.map { Color(rgb: $0) } ?? secondaryColor.opacity(0.2) }
+    /// Rules between list rows: a costume's edge, the system's otherwise.
+    var listRuleColor: Color? { edge.map { Color(rgb: $0) } }
     /// A costume's edge is a rim, drawn about twice as heavy as a hairline.
     var hasRim: Bool { edge != nil }
     /// The chrome's inactive ink: icons, tabs, the mark's quiet words. A

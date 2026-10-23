@@ -24,6 +24,8 @@ struct BookmarksView: View {
                                 thumbnailURL: bookmark.thumbnailURL
                             )
                         }
+                        .listRowSeparatorTint(theme.palette.listRuleColor)
+                        .listRowBackground(Color.clear)
                     }
                     .onDelete(perform: delete)
                 }

@@ -67,6 +67,7 @@ struct ContentView: View {
                         appendToActivePath(ArticleDestination(title: result.title, language: language))
                     }
                     .background(theme.paper)
+                    .clearsHeader()
                     .transition(.opacity)
                 }
             }
@@ -121,6 +122,7 @@ struct ContentView: View {
         case .today:
             NavigationStack(path: $todayPath) {
                 TodayView()
+                    .clearsHeader()
                     .toolbar(.hidden, for: .navigationBar)
                     .articleDestination(language: language, onSearch: rerunSearch)
                     .background(ForwardGestureEnabler(
@@ -132,6 +134,7 @@ struct ContentView: View {
         case .history:
             NavigationStack(path: $historyPath) {
                 HistoryView(onRerunSearch: rerunSearch)
+                    .clearsHeader()
                     .toolbar(.hidden, for: .navigationBar)
                     .articleDestination(language: language, onSearch: rerunSearch)
                     .background(ForwardGestureEnabler(
@@ -143,6 +146,7 @@ struct ContentView: View {
         case .bookmarks:
             NavigationStack(path: $bookmarksPath) {
                 BookmarksView()
+                    .clearsHeader()
                     .toolbar(.hidden, for: .navigationBar)
                     .articleDestination(language: language, onSearch: rerunSearch)
                     .background(ForwardGestureEnabler(
@@ -154,6 +158,7 @@ struct ContentView: View {
         case .nearby:
             NavigationStack(path: $nearbyPath) {
                 NearbyView(recenterToken: nearbyRecenterToken)
+                    .clearsHeader()
                     .toolbar(.hidden, for: .navigationBar)
                     .articleDestination(language: language, onSearch: rerunSearch)
                     .background(ForwardGestureEnabler(
@@ -318,9 +323,12 @@ private struct SearchResultsList: View {
                     SearchResultRow(result: result)
                 }
                 .buttonStyle(.plain)
+                .listRowSeparatorTint(theme.palette.listRuleColor)
+                .listRowBackground(Color.clear)
             }
         }
         .listStyle(.plain)
+        .scrollContentBackground(.hidden)
         .overlay {
             if let failure, results.isEmpty {
                 LoadFailureView(headline: "Couldn't search Wikipedia", failure: failure) { scheduleSearch(query) }
@@ -380,27 +388,20 @@ private struct SearchResultsList: View {
 }
 
 private struct SearchResultRow: View {
+    @Environment(\.folioTheme) private var theme
     let result: SearchResult
 
     var body: some View {
         HStack(spacing: 12) {
-            RemoteImage(url: result.thumbnailURL) { phase in
-                switch phase {
-                case .success(let image): image.resizable().scaledToFill()
-                case .failure, .empty: Color(.tertiarySystemFill)
-                @unknown default: Color(.tertiarySystemFill)
-                }
-            }
-            .frame(width: 48, height: 48)
-            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+            RowThumbnail(url: result.thumbnailURL, side: 48)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(result.title.replacingOccurrences(of: "_", with: " "))
-                    .font(.custom("EBGaramond-Regular", size: 17, relativeTo: .body))
+                    .font(theme.font(.text, size: 17, relativeTo: .body))
                     .foregroundStyle(.primary)
                 if !result.summary.isEmpty {
                     Text(result.summary)
-                        .font(.subheadline)
+                        .font(theme.dataFont(.subheadline))
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
                 }
@@ -414,7 +415,7 @@ extension ContentView {
     /// Click-free navigation for automated simulator screenshots, e.g.
     /// `simctl launch <sim> me.scott.folio -screenshotTab nearby`,
     /// `-screenshotArticle "Albert Einstein" -screenshotLanguage de`,
-    /// `-screenshotSettings 1`.
+    /// `-screenshotSettings 1`, `-screenshotSearch bauhaus`.
     /// simctl passes `-key value` pairs straight into UserDefaults.
     fileprivate func applyScreenshotOverrides() {
         #if DEBUG
@@ -441,6 +442,9 @@ extension ContentView {
         }
         if defaults.bool(forKey: "screenshotSettings") {
             showSettings = true
+        }
+        if let query = defaults.string(forKey: "screenshotSearch") {
+            searchText = query
         }
         if let themeRaw = defaults.string(forKey: "screenshotTheme"),
            Theme(rawValue: themeRaw) != nil {

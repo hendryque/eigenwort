@@ -1,33 +1,23 @@
 import SwiftUI
 
 struct SavedArticleRow: View {
+    @Environment(\.folioTheme) private var theme
     let title: String
     let summary: String?
     let thumbnailURL: URL?
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            RemoteImage(url: thumbnailURL?.wikimediaResized(to: ThumbnailWidth.row)) { phase in
-                switch phase {
-                case .success(let image):
-                    image.resizable().scaledToFill()
-                case .failure, .empty:
-                    Color(.tertiarySystemFill)
-                @unknown default:
-                    Color(.tertiarySystemFill)
-                }
-            }
-            .frame(width: 56, height: 56)
-            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+            RowThumbnail(url: thumbnailURL?.wikimediaResized(to: ThumbnailWidth.row), side: 56)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title.replacingOccurrences(of: "_", with: " "))
-                    .font(.custom("EBGaramond-Regular", size: 17, relativeTo: .body))
+                    .font(theme.font(.text, size: 17, relativeTo: .body))
                     .foregroundStyle(.primary)
                     .lineLimit(2)
                 if let summary, !summary.isEmpty {
                     Text(summary)
-                        .font(.subheadline)
+                        .font(theme.dataFont(.subheadline))
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
                 }
@@ -37,7 +27,29 @@ struct SavedArticleRow: View {
     }
 }
 
+/// A row's picture, square and rounded, on a tone off the ground until it
+/// arrives. Over a card, pass the paper so the square still shows.
+struct RowThumbnail: View {
+    @Environment(\.folioTheme) private var theme
+    let url: URL?
+    let side: CGFloat
+    var cornerRadius: CGFloat = 6
+    var ground: Color?
+
+    var body: some View {
+        RemoteImage(url: url) { phase in
+            switch phase {
+            case .success(let image): image.resizable().scaledToFill()
+            default: ground ?? theme.barBackground
+            }
+        }
+        .frame(width: side, height: side)
+        .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+    }
+}
+
 struct EmptyStateView: View {
+    @Environment(\.folioTheme) private var theme
     let icon: String
     let title: String
     let message: String
@@ -48,9 +60,9 @@ struct EmptyStateView: View {
                 .font(.largeTitle)
                 .foregroundStyle(.secondary)
             Text(title)
-                .font(.headline)
+                .font(theme.dataFont(.headline, .bold))
             Text(message)
-                .font(.subheadline)
+                .font(theme.dataFont(.subheadline))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)

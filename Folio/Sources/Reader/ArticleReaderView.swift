@@ -35,7 +35,6 @@ struct ArticleReaderView: View {
     @State private var initialScrollY: Double = 0
     @State private var toolbarReveal = ToolbarReveal()
     @State private var safeInsets = EdgeInsets()
-    @State private var readerTop: CGFloat = 0
     @State private var refreshTask: Task<Void, Never>?
     @State private var activeSectionAnchor: String?
 
@@ -78,10 +77,7 @@ struct ArticleReaderView: View {
             .offset(y: chrome?.isHeaderHidden == true ? -(chrome?.headerHeight ?? 0) : 0)
             .animation(.easeOut(duration: 0.22), value: chrome?.isHeaderHidden)
         }
-        // Down to the header's edge; measured outside the padding, so the
-        // padding cannot move what it is measured from.
-        .safeAreaPadding(.top, max(0, (chrome?.headerBottom ?? 0) - readerTop))
-        .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: { readerTop = $0 }
+        .clearsHeader()
         // The app's header goes and comes back on the bar's rule.
         .onChange(of: toolbarReveal.isVisible) { _, isVisible in chrome?.isHeaderHidden = !isVisible }
         .onAppear { chrome?.isHeaderHidden = !toolbarReveal.isVisible }

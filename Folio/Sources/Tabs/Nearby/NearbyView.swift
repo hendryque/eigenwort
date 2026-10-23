@@ -41,6 +41,8 @@ struct NearbyView: View {
                 Text("Location unavailable").foregroundStyle(.secondary)
             }
         }
+        // The map covers it; the states before the map need the paper.
+        .background(theme.paper)
         .onChange(of: locationProvider.coordinate?.latitude) { _, _ in
             handleCoordinateChange()
         }
@@ -126,7 +128,7 @@ struct NearbyView: View {
             VStack(spacing: 12) {
                 ProgressView()
                 Text("Locating…")
-                    .font(.callout)
+                    .font(theme.dataFont(.callout))
                     .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -224,6 +226,7 @@ struct NearbyView: View {
 }
 
 private struct LocationPermissionPrompt: View {
+    @Environment(\.folioTheme) private var theme
     let action: () -> Void
 
     var body: some View {
@@ -232,10 +235,10 @@ private struct LocationPermissionPrompt: View {
                 .font(.system(size: 56))
                 .foregroundStyle(.tint)
             Text("Discover Wikipedia near you")
-                .font(.custom("EBGaramond-Regular", size: 24, relativeTo: .body))
+                .font(theme.font(.text, size: 24, relativeTo: .body))
                 .multilineTextAlignment(.center)
             Text("Eigenwort uses your location only to query Wikipedia's geosearch endpoint. Nothing is sent anywhere else.")
-                .font(.callout)
+                .font(theme.dataFont(.callout))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
