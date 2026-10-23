@@ -28,9 +28,7 @@ struct TopHeader: View {
                 SearchBar(text: $searchText, focused: $searchFocused)
 
                 Button(action: onRandomTap) {
-                    Image(systemName: "shuffle")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundStyle(theme.palette.inactiveStyle)
+                    RandomDie()
                         .frame(width: 24, height: 24)
                 }
                 .accessibilityLabel("Random article")
