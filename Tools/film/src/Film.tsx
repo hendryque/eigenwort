@@ -154,7 +154,7 @@ const Themes: React.FC = () => {
 
 const End: React.FC = () => (
 	<AbsoluteFill style={{opacity: useFade(frames(scenes.end.length), 15)}}>
-		<Title extra="Free and open source · github.com/hendryque/folio" />
+		<Title extra="Free and open source · github.com/hendryque/eigenwort" />
 	</AbsoluteFill>
 );
 

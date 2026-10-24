@@ -4,17 +4,17 @@
 export const FPS = 30;
 
 export const clips = {
-	today: {file: 'clips/today.mp4', start: 4.3, tap: 8.7},
-	nearby: {file: 'clips/nearby.mp4', start: 3.0, tap: 6.9},
-	read: {file: 'clips/read.mp4', start: 1.9, scrollFrom: 3.55, scrollTo: 7.45},
+	today: {file: 'clips/today.mp4', start: 5.0, tap: 8.85},
+	nearby: {file: 'clips/nearby.mp4', start: 2.6, tap: 6.45},
+	read: {file: 'clips/read.mp4', start: 1.9, scrollFrom: 3.6, scrollTo: 7.4},
 	themes: {
 		file: 'clips/themes.mp4',
-		start: 2.2,
+		start: 2.1,
 		switches: [
-			{theme: 'sepia', at: 4.0},
-			{theme: 'dark', at: 5.65},
-			{theme: 'debug', at: 7.4},
-			{theme: 'gimmick', at: 9.05},
+			{theme: 'sepia', at: 3.9},
+			{theme: 'dark', at: 5.55},
+			{theme: 'debug', at: 7.35},
+			{theme: 'gimmick', at: 8.95},
 		],
 	},
 } as const;
