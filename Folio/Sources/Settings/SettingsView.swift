@@ -19,6 +19,8 @@ struct SettingsView: View {
                 }
 
                 Section {
+                    // The row runs to the card's edges, so a card can be cut
+                    // by them; the text keeps the form's own inset.
                     VStack(alignment: .leading, spacing: 14) {
                         ThemePickerRow(selection: themeEnumBinding)
                         Text(themeDescription)
@@ -26,8 +28,9 @@ struct SettingsView: View {
                             .foregroundStyle(.secondary)
                             .transition(.opacity)
                             .id(currentTheme)
+                            .padding(.horizontal, 20)
                     }
-                    .padding(.vertical, 4)
+                    .listRowInsets(EdgeInsets(top: 15, leading: 0, bottom: 15, trailing: 0))
 
                     HStack {
                         Text("Font size")
@@ -139,27 +142,60 @@ struct SettingsView: View {
 
 /// Six cards no longer fit across, so the row scrolls and opens on the
 /// selected one. Cards keep the width five of them had on the mini.
+/// Five cards and a half across the row, whatever the phone, so a sixth
+/// shows as a slice: the slice says the row scrolls, and an edge fades while
+/// there is more behind it.
 private struct ThemePickerRow: View {
     @Binding var selection: Theme
+    @State private var width: CGFloat = 0
+    @State private var moreBefore = false
+    @State private var moreAfter = false
+
+    private static let inset: CGFloat = 16, gap: CGFloat = 12, fade: CGFloat = 36
+
+    private var cardWidth: CGFloat {
+        width > 0 ? min(56, (width - Self.inset - 5 * Self.gap) / 5.5) : 52
+    }
 
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView(.horizontal) {
-                HStack(spacing: 12) {
+                HStack(spacing: Self.gap) {
                     ForEach(Theme.allCases) { theme in
                         ThemeCard(theme: theme, isSelected: selection == theme) {
                             if selection != theme {
                                 selection = theme
                             }
                         }
-                        .frame(width: 52)
+                        .frame(width: cardWidth)
                         .id(theme)
                     }
                 }
                 .padding(.vertical, 2)
             }
+            .contentMargins(.horizontal, Self.inset, for: .scrollContent)
             .scrollIndicators(.hidden)
+            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
+            .onScrollGeometryChange(for: Bool.self) { geometry in
+                geometry.contentOffset.x + geometry.contentInsets.leading > 1
+            } action: { _, more in moreBefore = more }
+            .onScrollGeometryChange(for: Bool.self) { geometry in
+                geometry.contentOffset.x < geometry.contentSize.width + geometry.contentInsets.trailing - geometry.containerSize.width - 1
+            } action: { _, more in moreAfter = more }
+            .mask(edges)
+            .animation(.easeOut(duration: 0.15), value: moreBefore)
+            .animation(.easeOut(duration: 0.15), value: moreAfter)
             .onAppear { proxy.scrollTo(selection, anchor: .center) }
+        }
+    }
+
+    private var edges: some View {
+        HStack(spacing: 0) {
+            LinearGradient(colors: [.clear, .black], startPoint: .leading, endPoint: .trailing)
+                .frame(width: moreBefore ? Self.fade : 0)
+            Color.black
+            LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing)
+                .frame(width: moreAfter ? Self.fade : 0)
         }
     }
 }
