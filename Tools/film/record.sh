@@ -2,7 +2,7 @@
 
 # Records the film's clips and the README stills on the simulator. The app's
 # DEBUG demo hooks drive every motion, so a re-record shows the same film.
-# Needs Python with Pillow. Usage: Tools/film/record.sh ["iPhone 17 Pro"]
+# Needs Python with Pillow and ffmpeg. Usage: Tools/film/record.sh ["iPhone 17 Pro"]
 set -euo pipefail
 
 NAME="${1:-iPhone 17 Pro}"
@@ -76,6 +76,8 @@ still gimmick -screenshotTheme gimmick -screenshotArticle "Metropolitan Museum o
     -screenshotScrollY 0
 xcrun simctl launch "$SIM" "$BUNDLE" -screenshotTheme light >/dev/null 2>&1 || true
 xcrun simctl status_bar "$SIM" clear
+# Nearby's still is the clip once the carousel has settled on the chosen pin.
+ffmpeg -y -v error -ss 8.5 -i "$PUB/clips/nearby.mp4" -frames:v 1 "$PUB/stills/nearby.png"
 
 /usr/bin/env python3 "$FILM/backdrop.py" "$PUB/backdrops"
 /bin/cp -f "$ROOT"/Folio/Resources/Fonts/EBGaramond-{Regular,Italic}.otf "$PUB/fonts/"

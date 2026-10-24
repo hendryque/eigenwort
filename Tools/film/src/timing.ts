@@ -19,15 +19,21 @@ export const clips = {
 	},
 } as const;
 
-// The film, scene by scene, in seconds.
-export const scenes = {
-	opening: {from: 0, length: 4},
-	today: {from: 4, length: 7.5},
-	nearby: {from: 11.5, length: 7},
-	type: {from: 18.5, length: 9},
-	themes: {from: 27.5, length: 10},
-	end: {from: 37.5, length: 5},
-} as const;
+// A cut: the scenes in order, each in seconds, and the whole. A length of
+// zero leaves the scene out.
+export type SceneKey = 'opening' | 'today' | 'nearby' | 'type' | 'themes' | 'end';
+export type Cut = {scenes: Record<SceneKey, {from: number; length: number}>; total: number};
+const cut = (lengths: Record<SceneKey, number>): Cut => {
+	let from = 0;
+	const scenes = {} as Cut['scenes'];
+	for (const key of Object.keys(lengths) as SceneKey[]) {
+		scenes[key] = {from, length: lengths[key]};
+		from += lengths[key];
+	}
+	return {scenes, total: from};
+};
 
-export const total = 42.5;
+export const film = cut({opening: 4, today: 7.5, nearby: 7, type: 9, themes: 10, end: 5});
+// The App Store preview: under 30 s, and the listing already shows the icon.
+export const preview = cut({opening: 0, today: 6, nearby: 5.5, type: 8, themes: 8, end: 2});
 export const frames = (seconds: number) => Math.round(seconds * FPS);

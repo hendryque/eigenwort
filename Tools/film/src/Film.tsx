@@ -1,8 +1,8 @@
 import React from 'react';
-import {AbsoluteFill, Freeze, Img, OffthreadVideo, Sequence, interpolate, staticFile, useCurrentFrame} from 'remotion';
-import {Layout, LayoutContext, tall, useLayout, wide} from './layout';
+import {AbsoluteFill, Freeze, Img, OffthreadVideo, Sequence, interpolate, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {Layout, LayoutContext, store, tall, useLayout, wide} from './layout';
 import {Backdrop, Card, Look, Phone, SCREEN, Touch, ink, useArrival, useFade} from './parts';
-import {FPS, clips, frames, scenes} from './timing';
+import {FPS, SceneKey, clips, frames} from './timing';
 
 const Title: React.FC<{extra?: string}> = ({extra}) => {
 	const icon = useArrival(0, 20);
@@ -27,7 +27,7 @@ const Title: React.FC<{extra?: string}> = ({extra}) => {
 };
 
 const Opening: React.FC = () => (
-	<AbsoluteFill style={{opacity: useFade(frames(scenes.opening.length))}}>
+	<AbsoluteFill style={{opacity: useFade(frames(useLayout().cut.scenes.opening.length))}}>
 		<Title />
 	</AbsoluteFill>
 );
@@ -36,7 +36,7 @@ const Today: React.FC = () => {
 	const clip = clips.today;
 	const {card, phone} = useLayout();
 	return (
-		<AbsoluteFill style={{opacity: useFade(frames(scenes.today.length))}}>
+		<AbsoluteFill style={{opacity: useFade(frames(useLayout().cut.scenes.today.length))}}>
 			<div style={card.slot}>
 				<Card top="Today" bottom="at a glance" />
 			</div>
@@ -54,7 +54,7 @@ const Nearby: React.FC = () => {
 	const clip = clips.nearby;
 	const {card, phone} = useLayout();
 	return (
-		<AbsoluteFill style={{opacity: useFade(frames(scenes.nearby.length))}}>
+		<AbsoluteFill style={{opacity: useFade(frames(useLayout().cut.scenes.nearby.length))}}>
 			<div style={card.slot}>
 				<Card top="Nearby" bottom="around you" />
 			</div>
@@ -95,7 +95,7 @@ const Typography: React.FC = () => {
 		extrapolateRight: 'clamp',
 	});
 	return (
-		<AbsoluteFill style={{opacity: useFade(frames(scenes.type.length))}}>
+		<AbsoluteFill style={{opacity: useFade(frames(useLayout().cut.scenes.type.length))}}>
 			<div style={{...card.slot, opacity: 1 - zoomIn * 0.85}}>
 				<Card top="Set" bottom="like a book" />
 			</div>
@@ -152,7 +152,7 @@ const Themes: React.FC = () => {
 	const current: Look = clip.switches.reduce<Look>((look, s, i) => (fades[i] > 0.5 ? s.theme : look), 'light');
 	const {card, phone} = useLayout();
 	return (
-		<AbsoluteFill style={{opacity: useFade(frames(scenes.themes.length))}}>
+		<AbsoluteFill style={{opacity: useFade(frames(useLayout().cut.scenes.themes.length))}}>
 			<Backdrop look="light" />
 			{clip.switches.map((s, i) => (
 				<Backdrop key={s.theme} look={s.theme} opacity={fades[i]} />
@@ -173,17 +173,19 @@ const Themes: React.FC = () => {
 };
 
 const End: React.FC = () => (
-	<AbsoluteFill style={{opacity: useFade(frames(scenes.end.length), 15)}}>
+	<AbsoluteFill style={{opacity: useFade(frames(useLayout().cut.scenes.end.length), 15)}}>
 		<Title extra="Free and open source · github.com/hendryque/eigenwort" />
 	</AbsoluteFill>
 );
 
 const Film: React.FC = () => {
-	const scene = (key: keyof typeof scenes, node: React.ReactNode) => (
-		<Sequence from={frames(scenes[key].from)} durationInFrames={frames(scenes[key].length)}>
-			{node}
-		</Sequence>
-	);
+	const {scenes} = useLayout().cut;
+	const scene = (key: SceneKey, node: React.ReactNode) =>
+		scenes[key].length > 0 && (
+			<Sequence from={frames(scenes[key].from)} durationInFrames={frames(scenes[key].length)}>
+				{node}
+			</Sequence>
+		);
 	return (
 		<AbsoluteFill>
 			<Backdrop look="light" />
@@ -205,3 +207,15 @@ const In: React.FC<{layout: Layout}> = ({layout}) => (
 
 export const FilmWide = () => <In layout={wide} />;
 export const FilmTall = () => <In layout={tall} />;
+/** The preview at its 886 × 1920 design size, scaled to cover a device's own resolution. */
+export const FilmStore = () => {
+	const {width, height} = useVideoConfig();
+	const scale = Math.max(width / store.width, height / store.height);
+	return (
+		<AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
+			<div style={{width: store.width, height: store.height, position: 'relative', flexShrink: 0, transform: `scale(${scale})`}}>
+				<In layout={store} />
+			</div>
+		</AbsoluteFill>
+	);
+};
