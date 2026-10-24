@@ -70,7 +70,12 @@ than the UI.
 The film and the screenshots above come from `Tools/film`. `record.sh` records
 the simulator through the app's debug demo hooks, then `npm install`,
 `npm run film` and `npm run stills` in that folder render them with
-[Remotion](https://www.remotion.dev).
+[Remotion](https://www.remotion.dev); `npm run store` makes the App Store
+screenshots, and `docs/app-store.md` holds the rest of the listing.
+
+What the app does with your data is in [PRIVACY.md](PRIVACY.md): nothing,
+beyond the requests Wikipedia needs. Questions and bugs go to
+[issues](https://github.com/hendryque/eigenwort/issues).
 
 If you plan to commit, enable the repo's hooks once with
 `git config core.hooksPath .githooks`. They run [gitleaks](https://github.com/gitleaks/gitleaks)

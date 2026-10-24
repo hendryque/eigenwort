@@ -41,8 +41,9 @@ Folio/GeneratedInfo.plist
 .gitleaks.local.toml
 .githooks/*.local
 
-# Working design notes, kept local
+# Working design notes, kept local; the listing is part of the project.
 docs/*.md
+!docs/app-store.md
 
 # Personal working files, not part of the project.
 assets/

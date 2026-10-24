@@ -6,7 +6,7 @@ import Foundation
 enum UserAgent {
     static let value: String = "Eigenwort/\(version) (\(contact))"
 
-    private static let contact = "https://github.com/hendryque/folio"
+    private static let contact = "https://github.com/hendryque/eigenwort"
 
     private static let version: String = {
         (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "1.0"
