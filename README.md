@@ -6,7 +6,7 @@ in August 2022. I kept using my copy anyway, until Wikipedia changed
 something in their APIs and the Today view went blank. So I built Eigenwort: a
 personal recreation of the parts I used every day. It is an homage, not a replacement. The original's polish took years. This took a few evenings, and it shows in places.
 
-https://github.com/user-attachments/assets/dc2a34c4-daac-46c9-aefd-7ead33251243
+https://github.com/user-attachments/assets/436b47d3-ca6c-4bc7-afa4-14a3c0683d09
 
 <p align="center">
   <img src="docs/screenshots/today.png" width="270" alt="Today: the day's featured and most-read articles as a photo grid">
