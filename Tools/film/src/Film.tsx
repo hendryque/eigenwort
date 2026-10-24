@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Img, OffthreadVideo, Sequence, interpolate, staticFile, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Freeze, Img, OffthreadVideo, Sequence, interpolate, staticFile, useCurrentFrame} from 'remotion';
 import {Layout, LayoutContext, tall, useLayout, wide} from './layout';
 import {Backdrop, Card, Look, Phone, SCREEN, Touch, ink, useArrival, useFade} from './parts';
 import {FPS, clips, frames, scenes} from './timing';
@@ -69,15 +69,28 @@ const Nearby: React.FC = () => {
 };
 
 // The passage magnified: old-style 1925 to 1933, three hyphenations and an
-// italic Bauhaus, in source pixels of the read clip's last frame.
-const ZOOM = {x: 50, y: 910, width: 1110, height: 620, at: 6};
+// italic Bauhaus, in source pixels of the read clip's last frame. The panel
+// keeps a margin of `pad` of its width around the passage.
+const ZOOM = {x: 50, y: 910, width: 1110, height: 620, pad: 0.05};
+// Light's page, the ground the passage is set on.
+const PAGE = '#fdfdfd';
+
+/** Holds the frame at `from` seconds from then on, where a clip would run out. */
+const Held: React.FC<{from: number; children: React.ReactNode}> = ({from, children}) => (
+	<Freeze frame={frames(from)} active={(frame) => frame >= frames(from)}>
+		{children}
+	</Freeze>
+);
 
 const Typography: React.FC = () => {
 	const clip = clips.read;
 	const frame = useCurrentFrame();
 	const {card, phone, zoom} = useLayout();
-	const scale = zoom.shown / ZOOM.width;
-	const zoomIn = interpolate(frame, [frames(ZOOM.at), frames(ZOOM.at + 0.5)], [0, 1], {
+	const pad = zoom.shown * ZOOM.pad;
+	const scale = (zoom.shown - 2 * pad) / ZOOM.width;
+	// As soon as the scroll has settled; the clip ends before the scene does.
+	const settled = clip.scrollTo - clip.start + 0.3;
+	const zoomIn = interpolate(frame, [frames(settled), frames(settled + 0.5)], [0, 1], {
 		extrapolateLeft: 'clamp',
 		extrapolateRight: 'clamp',
 	});
@@ -87,36 +100,43 @@ const Typography: React.FC = () => {
 				<Card top="Set" bottom="like a book" />
 			</div>
 			<div style={{...phone.slot, ...useArrival(4, 60)}}>
-				<Phone clip={clip} height={phone.height}>
-					<Touch x={0.62} y={0.78} toY={0.3} at={clip.scrollFrom - clip.start} over={clip.scrollTo - clip.scrollFrom} />
-				</Phone>
+				<Held from={settled}>
+					<Phone clip={clip} height={phone.height}>
+						<Touch x={0.62} y={0.78} toY={0.3} at={clip.scrollFrom - clip.start} over={clip.scrollTo - clip.scrollFrom} />
+					</Phone>
+				</Held>
 			</div>
 			<div
 				style={{
 					...zoom.slot,
 					width: zoom.shown,
-					height: ZOOM.height * scale,
+					height: ZOOM.height * scale + 2 * pad,
 					borderRadius: 22,
 					overflow: 'hidden',
-					background: '#fff',
+					background: PAGE,
 					boxShadow: '0 40px 80px rgba(40,30,10,.22), 0 8px 20px rgba(40,30,10,.10)',
 					opacity: zoomIn,
 					transform: `scale(${0.92 + zoomIn * 0.08})`,
 				}}
 			>
-				<OffthreadVideo
-					src={staticFile(clip.file)}
-					startFrom={frames(clip.start)}
-					muted
-					style={{
-						position: 'absolute',
-						width: SCREEN.width * scale,
-						height: SCREEN.height * scale,
-						left: -ZOOM.x * scale,
-						top: -ZOOM.y * scale,
-						maxWidth: 'none',
-					}}
-				/>
+				{/* The passage alone, clipped; the margin around it is the page's paper. */}
+				<div style={{position: 'absolute', left: pad, top: pad, width: ZOOM.width * scale, height: ZOOM.height * scale, overflow: 'hidden'}}>
+					<Held from={settled}>
+						<OffthreadVideo
+							src={staticFile(clip.file)}
+							startFrom={frames(clip.start)}
+							muted
+							style={{
+								position: 'absolute',
+								width: SCREEN.width * scale,
+								height: SCREEN.height * scale,
+								left: -ZOOM.x * scale,
+								top: -ZOOM.y * scale,
+								maxWidth: 'none',
+							}}
+						/>
+					</Held>
+				</div>
 			</div>
 		</AbsoluteFill>
 	);

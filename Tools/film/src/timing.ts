@@ -24,10 +24,10 @@ export const scenes = {
 	opening: {from: 0, length: 4},
 	today: {from: 4, length: 7.5},
 	nearby: {from: 11.5, length: 7},
-	type: {from: 18.5, length: 8},
-	themes: {from: 26.5, length: 10},
-	end: {from: 36.5, length: 5},
+	type: {from: 18.5, length: 9},
+	themes: {from: 27.5, length: 10},
+	end: {from: 37.5, length: 5},
 } as const;
 
-export const total = 41.5;
+export const total = 42.5;
 export const frames = (seconds: number) => Math.round(seconds * FPS);
