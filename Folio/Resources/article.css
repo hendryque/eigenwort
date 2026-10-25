@@ -366,12 +366,18 @@ section[data-mw-section-id].folio-reference-section {
     font-size: calc(0.72em * var(--folio-data-scale, 1));
     line-height: 1.3;
 }
+/* The infobox is a block, so WebKit gives its caption an anonymous table of
+   its own that shrinks to a syllable. A block, and names do not hyphenate. */
 .infobox caption {
+    display: block;
+    width: 100%;
     font-weight: 700;
     font-family: var(--folio-serif);
     font-size: 1.1em;
     padding: 0 0 8px 0;
     text-align: left;
+    hyphens: manual;
+    -webkit-hyphens: manual;
 }
 .infobox th, .infobox td {
     border: 0;
