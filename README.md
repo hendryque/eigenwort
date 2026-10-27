@@ -40,7 +40,10 @@ Wikipedia's geosearch endpoint and nowhere further.
 The type follows the reading situation. Today and Nearby are scanning
 surfaces, so titles there use EB Garamond Medium, italic on the grid, and
 each Today tile darkens its image only as much as that image's measured
-brightness requires. The reader sets 18px at 1.52 line height, sized by
+brightness requires. In the magazine themes the tabs take the magazine's
+faces too, and tables and captions everywhere are set in the theme's data
+face: the system font in the book themes, Barlow in De:Bug, Comic Neue in
+Gimmick. The reader sets 18px at 1.52 line height, sized by
 x-height rather than by the nominal number, with the measure capped at 26rem,
 which holds about 63 characters at any reader size. Prose uses old-style
 figures; tables and infoboxes keep lining tabular figures so columns align. A
@@ -54,7 +57,8 @@ hyphenation and quotation conventions stay distinct.
 ## Building
 
 You need Xcode 16 or newer and [XcodeGen](https://github.com/yonaskolb/XcodeGen).
-The project and the repository keep the working title, Folio:
+The Xcode project, the bundle id and the internal names keep the working
+title, Folio:
 
 ```
 cd Folio
@@ -66,14 +70,15 @@ Change the development team to your own, then build and run. Targets iOS 18,
 iPhone first. Sideloads fine with a free Apple ID. That is how I run it.
 
 Tests run with `xcodebuild test -scheme Folio -destination 'platform=iOS
-Simulator,name=iPhone 16'`. They cover the reader document's invariants rather
-than the UI.
+Simulator,name=<any iPhone>'`. They cover the reader document's invariants and
+the parsers rather than the UI.
 
 The film and the screenshots above come from `Tools/film`. `record.sh` records
 the simulator through the app's debug demo hooks, then `npm install`,
 `npm run film` and `npm run stills` in that folder render them with
-[Remotion](https://www.remotion.dev); `npm run store` makes the App Store
-screenshots, and `docs/app-store.md` holds the rest of the listing.
+[Remotion](https://www.remotion.dev); `npm run store` and `npm run preview`
+make the App Store screenshots and preview, and `docs/app-store.md` holds the
+rest of the listing.
 
 What the app does with your data is in [PRIVACY.md](PRIVACY.md): nothing,
 beyond the requests Wikipedia needs. Questions and bugs go to
