@@ -27,6 +27,8 @@ https://github.com/user-attachments/assets/a0b10a76-21e0-48d6-8110-4a0a917e4c69
 - Nearby: Wikipedia articles around you, on a map
 - Search, bookmarks, and reading history, stored locally with SwiftData
 - English and German Wikipedia, toggled from the header
+- Wikipedia links open in the app: paste one into search, or pick "Open in
+  Eigenwort" in the share sheet from Safari or anywhere else
 - Articles and images are cached and prefetched, so most things open instantly
 
 There is no backend, no analytics, and no accounts. The app talks directly to

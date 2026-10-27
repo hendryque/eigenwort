@@ -114,6 +114,16 @@ struct ContentView: View {
             ensureSettingsRow()
             applyScreenshotOverrides()
         }
+        // A link to an article opens it: pasted into search, or handed over
+        // by the share extension and Shortcuts as eigenwort://de/Bauhaus.
+        .onOpenURL { url in
+            if let link = WikipediaLink(url) { open(link) }
+        }
+        .onChange(of: searchText) { _, text in
+            if let url = URL(string: text.trimmingCharacters(in: .whitespacesAndNewlines)), let link = WikipediaLink(url) {
+                open(link)
+            }
+        }
     }
 
     @ViewBuilder
@@ -280,6 +290,12 @@ struct ContentView: View {
                 // Best-effort: silently no-op if the network request fails.
             }
         }
+    }
+
+    private func open(_ link: WikipediaLink) {
+        searchFocused = false
+        searchText = ""
+        appendToActivePath(ArticleDestination(title: link.title, language: link.language))
     }
 
     private func appendToActivePath(_ destination: ArticleDestination) {

@@ -66,18 +66,59 @@ targets:
         UIApplicationSupportsIndirectInputEvents: YES
         UILaunchScreen: {}
         ITSAppUsesNonExemptEncryption: NO
+        CFBundleURLTypes:
+          - CFBundleURLName: me.scott.folio
+            CFBundleURLSchemes:
+              - eigenwort
         UIRequiresFullScreen: NO
         UIStatusBarStyle: UIStatusBarStyleDefault
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
+    dependencies:
+      - target: OpenInEigenwort
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: me.scott.folio
         PRODUCT_NAME: Folio
         TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+
+  # "Open in Eigenwort" in the share sheet, for any web link; it opens the
+  # app through the eigenwort scheme and shares the link parser's source.
+  OpenInEigenwort:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "18.0"
+    sources:
+      - path: OpenIn
+        type: group
+        excludes:
+          - Info.plist
+      - path: Sources/Data/WikipediaLink.swift
+    info:
+      path: OpenIn/Info.plist
+      properties:
+        CFBundleDisplayName: Open in Eigenwort
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleIdentifier: $(PRODUCT_BUNDLE_IDENTIFIER)
+        CFBundlePackageType: $(PRODUCT_BUNDLE_PACKAGE_TYPE)
+        CFBundleExecutable: $(EXECUTABLE_NAME)
+        CFBundleName: $(PRODUCT_NAME)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.ui-services
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).OpenInViewController
+          NSExtensionAttributes:
+            NSExtensionActivationRule:
+              NSExtensionActivationSupportsWebURLWithMaxCount: 1
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: me.scott.folio.open
+        PRODUCT_NAME: OpenInEigenwort
+        TARGETED_DEVICE_FAMILY: "1"
+        SKIP_INSTALL: YES
 
   FolioTests:
     type: bundle.unit-test
