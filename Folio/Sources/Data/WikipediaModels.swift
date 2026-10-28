@@ -241,7 +241,8 @@ struct NearbyResponse: Decodable, Sendable {
 }
 
 /// Decoded response from /w/api.php?action=query&generator=prefixsearch&prop=pageimages|description.
-struct PrefixSearchResponse: Decodable, Sendable {
+/// Pages from a search generator, prefix or full text: the same shape.
+struct SearchPagesResponse: Decodable, Sendable {
     let query: Query?
 
     struct Query: Decodable, Sendable {

@@ -391,9 +391,28 @@ private struct SearchResultsList: View {
             try? await Task.sleep(for: .milliseconds(200))
             guard !Task.isCancelled else { return }
             do {
-                let fetched = try await WikipediaClient.shared.search(query: trimmed, language: language)
-                guard !Task.isCancelled else { return }
-                results = fetched
+                let client = WikipediaClient.shared
+                let language = language
+                async let prefix = client.search(query: trimmed, language: language, scope: .titlePrefix)
+                async let fullText: [SearchResult] = {
+                    guard SearchMerge.wantsFullText(trimmed) else { return [] }
+                    return try await client.search(query: trimmed, language: language, scope: .fullText)
+                }()
+                // A phrase waits for both, so the list does not reorder under
+                // the thumb; a fragment shows completions at once and appends.
+                // Full text failing leaves the completions alone.
+                if SearchMerge.fullTextLeads(trimmed) {
+                    let (p, f) = try await (prefix, (try? fullText) ?? [])
+                    guard !Task.isCancelled else { return }
+                    results = SearchMerge.merged(query: trimmed, prefix: p, fullText: f)
+                } else {
+                    let p = try await prefix
+                    guard !Task.isCancelled else { return }
+                    results = p
+                    let f = (try? await fullText) ?? []
+                    guard !Task.isCancelled else { return }
+                    results = SearchMerge.merged(query: trimmed, prefix: p, fullText: f)
+                }
             } catch {
                 guard !Task.isCancelled else { return }
                 results = []

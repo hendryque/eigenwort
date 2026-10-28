@@ -1,11 +1,16 @@
 import Foundation
 
+/// Titles that begin with the query, or hits anywhere in title and text.
+enum SearchScope: Sendable {
+    case titlePrefix, fullText
+}
+
 enum WikipediaEndpoint {
     case featured(language: String, date: Date)
     case summary(title: String, language: String)
     case mobileHTML(title: String, language: String)
     case random(language: String)
-    case prefixSearch(query: String, language: String, limit: Int)
+    case search(query: String, language: String, limit: Int, scope: SearchScope)
     case langlinks(title: String, language: String)
     case related(title: String, language: String)
     case nearby(language: String, latitude: Double, longitude: Double, radiusMeters: Int, limit: Int)
@@ -33,18 +38,20 @@ enum WikipediaEndpoint {
         case .random(let language):
             return URL(string: "https://\(language).wikipedia.org/api/rest_v1/page/random/summary")
 
-        case .prefixSearch(let query, let language, let limit):
-            // generator=prefixsearch + prop=pageimages|description gives us titles,
+        case .search(let query, let language, let limit, let scope):
+            // A search generator + prop=pageimages|description gives us titles,
             // short descriptions, and row-sized thumbnails in one round trip.
+            // The two generators take the same parameters under their own prefix.
+            let (generator, p) = scope == .titlePrefix ? ("prefixsearch", "gps") : ("search", "gsr")
             var components = URLComponents(string: "https://\(language).wikipedia.org/w/api.php")
             components?.queryItems = [
                 URLQueryItem(name: "action", value: "query"),
                 URLQueryItem(name: "format", value: "json"),
                 URLQueryItem(name: "formatversion", value: "2"),
-                URLQueryItem(name: "generator", value: "prefixsearch"),
-                URLQueryItem(name: "gpssearch", value: query),
-                URLQueryItem(name: "gpslimit", value: String(limit)),
-                URLQueryItem(name: "gpsnamespace", value: "0"),
+                URLQueryItem(name: "generator", value: generator),
+                URLQueryItem(name: "\(p)search", value: query),
+                URLQueryItem(name: "\(p)limit", value: String(limit)),
+                URLQueryItem(name: "\(p)namespace", value: "0"),
                 URLQueryItem(name: "prop", value: "pageimages|description"),
                 URLQueryItem(name: "piprop", value: "thumbnail"),
                 URLQueryItem(name: "pithumbsize", value: String(ThumbnailWidth.row))
