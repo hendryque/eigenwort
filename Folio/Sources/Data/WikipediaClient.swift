@@ -65,10 +65,12 @@ actor WikipediaClient {
         return response.query?.pages?.first?.langlinks ?? []
     }
 
-    func related(title: String, language: String) async throws -> [ArticleSummary] {
-        struct Wrapper: Decodable { let pages: [ArticleSummary] }
-        let wrapper: Wrapper = try await get(.related(title: title, language: language))
-        return wrapper.pages
+    /// Articles like this one, by Wikipedia's own reckoning. The REST related
+    /// endpoint is gone; CirrusSearch's morelike: gives the same, with the
+    /// search rows' description and picture.
+    func related(title: String, language: String) async throws -> [SearchResult] {
+        let query = "morelike:" + title.replacingOccurrences(of: " ", with: "_")
+        return try await search(query: query, language: language, scope: .fullText, limit: 6)
     }
 
     func mediaList(title: String, language: String) async throws -> [MediaItem] {

@@ -114,7 +114,7 @@ struct OnThisDayItem: Decodable, Sendable, Identifiable, Hashable {
     var id: String { "\(year ?? 0)-\(text.hashValue)" }
 }
 
-struct SearchResult: Sendable, Hashable, Identifiable {
+struct SearchResult: Sendable, Hashable, Identifiable, Encodable {
     let title: String
     let summary: String
     let thumbnailURL: URL?

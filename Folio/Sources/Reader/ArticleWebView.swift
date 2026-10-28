@@ -27,6 +27,9 @@ struct ArticleWebView: UIViewRepresentable {
     /// beneath the header and starts below it.
     let contentInsets: EdgeInsets
     let initialScrollY: Double
+    /// Articles like this one, listed ahead of the colophon once they arrive.
+    let related: [SearchResult]
+    let relatedHeading: String
 
     @Binding var pendingScrollAnchor: String?
 
@@ -173,6 +176,12 @@ struct ArticleWebView: UIViewRepresentable {
             webView.evaluateJavaScript(js)
         }
 
+        let relatedJSON = Self.javaScriptJSON(RelatedPayload(heading: relatedHeading, items: related))
+        if context.coordinator.relatedJSON != relatedJSON {
+            context.coordinator.relatedJSON = relatedJSON
+            webView.evaluateJavaScript("window.folioRelated && window.folioRelated(\(relatedJSON))")
+        }
+
         if let anchor = pendingScrollAnchor {
             // JSON-encode the anchor so backslashes, newlines, quotes, and any
             // other special character are escaped to a valid JS string literal.
@@ -184,13 +193,18 @@ struct ArticleWebView: UIViewRepresentable {
         }
     }
 
+    private struct RelatedPayload: Encodable {
+        let heading: String
+        let items: [SearchResult]
+    }
+
     private static func javaScriptJSON<T: Encodable>(_ value: T) -> String {
         let data = (try? JSONEncoder().encode(value)) ?? Data("null".utf8)
         return String(data: data, encoding: .utf8) ?? "null"
     }
 
     private static let userScriptSources: [String] = {
-        ["lazy", "references", "toc", "footnotes", "images", "pinch", "scroll", "section", "painted"].compactMap { name in
+        ["lazy", "references", "toc", "footnotes", "images", "pinch", "scroll", "section", "painted", "related"].compactMap { name in
             guard let url = Bundle.main.url(forResource: name, withExtension: "js") else { return nil }
             return try? String(contentsOf: url, encoding: .utf8)
         }
@@ -198,6 +212,7 @@ struct ArticleWebView: UIViewRepresentable {
 
     @MainActor
     final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
+        var relatedJSON: String?
         var currentTitle: String
         var initialScrollY: Double
         var onSections: ([ArticleSection]) -> Void
@@ -318,6 +333,10 @@ struct ArticleWebView: UIViewRepresentable {
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             // Fallback only: `painted` normally reveals us ~500ms earlier.
             markPainted()
+            // The list may have arrived before the document could take it.
+            if let relatedJSON {
+                webView.evaluateJavaScript("window.folioRelated && window.folioRelated(\(relatedJSON))")
+            }
             #if DEBUG
             // `-demoScrollTo 1150 -demoScrollSeconds 4` reads down with an eased
             // scroll a second after landing, for the film.

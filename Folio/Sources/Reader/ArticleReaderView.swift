@@ -26,6 +26,7 @@ struct ArticleReaderView: View {
     @State private var lightbox: LightboxRequest?
     @State private var pendingScrollAnchor: String?
     @State private var alternateLink: LangLink?
+    @State private var related: [SearchResult] = []
     @State private var pushedArticle: ArticleDestination?
     @State private var heroFocalPoint: CGPoint?
     @State private var cachedHeroURL: URL?
@@ -170,6 +171,8 @@ struct ArticleReaderView: View {
                     fontScale: fontScale,
                     contentInsets: safeInsets,
                     initialScrollY: initialScrollY,
+                    related: related,
+                    relatedHeading: language == "de" ? "Ähnliche Artikel" : "Related",
                     pendingScrollAnchor: $pendingScrollAnchor,
                     onSections: { sections = $0 },
                     onImageTap: { lightbox = LightboxRequest(tapped: $0, caption: $1, in: galleryItems) },
@@ -300,6 +303,7 @@ struct ArticleReaderView: View {
 
         loadFailure = nil
         alternateLink = nil
+        related = []
         heroFocalPoint = nil
         cachedHeroURL = nil
         visionComplete = false
@@ -332,6 +336,7 @@ struct ArticleReaderView: View {
         async let htmlTask: () = loadHTML()
         async let langlinksTask: () = loadLanglinks()
         async let galleryTask: () = loadGallery()
+        async let relatedTask: () = loadRelated()
 
         // Summary feeds the preview and share/bookmark metadata — and, when
         // the cache had no focal point, the hero image Vision runs on.
@@ -346,7 +351,7 @@ struct ArticleReaderView: View {
         // it's missing so the next open takes the no-network fast path.
         if let focal = heroFocalPoint { persistFocalPoint(focal) }
         recordHistoryIfNeeded()
-        _ = await (langlinksTask, galleryTask)
+        _ = await (langlinksTask, galleryTask, relatedTask)
     }
 
     /// Resolves the hero focal point via cache → Vision → persist. Cached articles
@@ -390,6 +395,10 @@ struct ArticleReaderView: View {
     private func handleContentProcessTerminated() {
         webViewReady = false
         reloadToken = UUID()
+    }
+
+    private func loadRelated() async {
+        related = (try? await WikipediaClient.shared.related(title: title, language: language)) ?? []
     }
 
     private func loadLanglinks() async {

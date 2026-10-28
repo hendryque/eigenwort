@@ -12,7 +12,6 @@ enum WikipediaEndpoint {
     case random(language: String)
     case search(query: String, language: String, limit: Int, scope: SearchScope)
     case langlinks(title: String, language: String)
-    case related(title: String, language: String)
     case nearby(language: String, latitude: Double, longitude: Double, radiusMeters: Int, limit: Int)
     case mediaList(title: String, language: String)
 
@@ -70,10 +69,6 @@ enum WikipediaEndpoint {
                 URLQueryItem(name: "redirects", value: "1")
             ]
             return components?.url
-
-        case .related(let title, let language):
-            guard let escaped = Self.encodePathTitle(title) else { return nil }
-            return URL(string: "https://\(language).wikipedia.org/api/rest_v1/page/related/\(escaped)")
 
         case .mediaList(let title, let language):
             guard let escaped = Self.encodePathTitle(title) else { return nil }
