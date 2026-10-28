@@ -70,12 +70,18 @@
             img.src = src;
 
             var srcset = ph.getAttribute('data-srcset');
+            // A gallery cell comes at 120px for a desktop row; at half the
+            // measure on a 3x screen it wants 500, a width Wikimedia serves.
+            var cls = ph.getAttribute('data-class');
+            if (cls && cls.indexOf('gallery-img') >= 0) {
+                img.src = src.replace(/\/\d+px-/, '/500px-');
+                srcset = null;
+            }
             if (srcset) img.srcset = srcset;
 
             var alt = ph.getAttribute('data-alt') || ph.getAttribute('alt') || '';
             if (alt) img.alt = alt;
 
-            var cls = ph.getAttribute('data-class');
             if (cls) img.className = cls;
 
             var w = ph.getAttribute('data-width');

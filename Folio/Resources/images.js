@@ -12,8 +12,8 @@
     // The lightbox shows a bare image otherwise, with nothing saying what
     // it is. Wikipedia already wrote the caption; carry it across.
     function captionFor(el) {
-        const figure = el.closest('figure');
-        const caption = figure && figure.querySelector('figcaption');
+        const box = el.closest('figure, .gallerybox');
+        const caption = box && box.querySelector('figcaption, .gallerytext');
         return caption ? caption.textContent.trim() : '';
     }
 
