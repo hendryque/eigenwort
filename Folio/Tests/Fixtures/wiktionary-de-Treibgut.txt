@@ -1,0 +1,63 @@
+== Treibgut ({{Sprache|Deutsch}}) ==
+=== {{Wortart|Substantiv|Deutsch}}, {{n}} ===
+
+{{Deutsch Substantiv Übersicht
+|Genus=n
+|Nominativ Singular=Treibgut
+|Nominativ Plural=Treibgüter
+|Genitiv Singular=Treibgutes
+|Genitiv Singular*=Treibguts
+|Genitiv Plural=Treibgüter
+|Dativ Singular=Treibgut
+|Dativ Singular*=Treibgute
+|Dativ Plural=Treibgütern
+|Akkusativ Singular=Treibgut
+|Akkusativ Plural=Treibgüter
+}}
+
+{{Worttrennung}}
+:Treib·gut, {{Pl.}} Treib·gü·ter
+
+{{Aussprache}}
+:{{IPA}} {{Lautschrift|ˈtʁaɪ̯pˌɡuːt}}
+:{{Hörbeispiele}} {{Audio|De-Treibgut.ogg}}
+
+{{Bedeutungen}}
+:[1] Gegenstand, der auf dem Wasser/im Wasser von der Bewegung des Wassers bewegt wird
+
+{{Herkunft}}
+:[[Determinativkompositum]] aus dem Stamm des Verbs ''[[treiben]]'' und dem Substantiv ''[[Gut]]''
+
+{{Sinnverwandte Wörter}}
+:[1] [[Schwemmgut]], [[Strandgut]]
+
+{{Unterbegriffe}}
+:[1] [[Treibholz]]
+
+{{Beispiele}}
+:[1] „Beim ersten geht es um ''Treibgut''.“<ref>{{Literatur | Autor= Björn Berge | Titel= Atlas der verschwundenen Länder |TitelErg= Weltgeschichte in 50 Briefmarken| Übersetzer= Günter Frauenlob, Frank Zuber |Verlag= dtv| Ort= München| Jahr= 2018 | ISBN=978-3-423-28160-7 | Seiten=7.}} Norwegisches Original 2016</ref>
+:[1] „Mit amerikanischem ''Treibgut'', doch in aller Unschuld, hatte ein oberbayerisches Stubenmädchen seine liebe Not, das einem einquartierten GI eine Waschschüssel hinstellte.“<ref>{{Literatur| Autor= Eugen Skasa-Weiß |Titel= So lacht Germania| TitelErg= Humor zwischen Isar und Elbe| Verlag= Herder |Ort= Freiburg/Basel/Wien | Jahr= 1971 | ISBN=  | Seiten= 32.}}</ref>
+:[1] „Die Siedler suchten sofort den Strand nach anderem ''Treibgut''ab, Harbert und Nab kletterten auf die Felsen, um auch den dahinterliegenden Strand einsehen zu können.“<ref>{{Literatur | Autor= Jules Verne|Titel=Die geheimnisvolle Insel| Übersetzer= Lothar Baier| Verlag= Verlag Bärmeier und Nickel| Ort=Frankfurt/Main| Jahr=ohne Jahr (Copyright 1967)|kein ISBN= }}, Seite 142. Französisch 1874/75.</ref>.
+
+{{Wortbildungen}}
+:[[Treibgutrechen]]
+
+==== {{Übersetzungen}} ====
+{{Ü-Tabelle|1|G=Gegenstand, der auf dem Wasser/im Wasser von der Bewegung des Wassers bewegt wird|Ü-Liste=
+*{{en}}: {{Ü|en|flotsam}}
+*{{fr}}: {{Ü|fr|}}
+*{{ru}}: {{Üt|ru|}}
+*{{es}}: {{Ü|es|}}
+}}
+
+{{Referenzen}}
+:[1] {{Wikipedia}}
+:[1] {{Ref-DWDS}}
+:[*] {{Ref-OWID}}
+:[1] {{Ref-UniLeipzig}}
+:[1] {{Ref-FreeDictionary}}
+:[1] {{Ref-Duden}}
+
+{{Quellen}}
+
+{{Ähnlichkeiten 1|Anagramme=[[beitrugt]], [[butterig]], [[buttrige]]}}

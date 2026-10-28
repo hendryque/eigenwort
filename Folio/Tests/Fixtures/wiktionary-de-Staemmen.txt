@@ -1,0 +1,18 @@
+{{Siehe auch|[[stammen]], [[Stammen]]}}
+== Stämmen ({{Sprache|Deutsch}}) ==
+=== {{Wortart|Deklinierte Form|Deutsch}} ===
+
+{{Worttrennung}}
+:Stäm·men
+
+{{Aussprache}}
+:{{IPA}} {{Lautschrift|ˈʃtɛmən}}
+:{{Hörbeispiele}} {{Audio|De-Stämmen.ogg}}
+:{{Reime}} {{Reim|ɛmən|Deutsch}}
+
+{{Grammatische Merkmale}}
+*Dativ Plural des Substantivs '''[[Stamm]]'''
+
+{{Grundformverweis Dekl|Stamm}}
+
+{{Ähnlichkeiten 1|[[stemmen]]}}

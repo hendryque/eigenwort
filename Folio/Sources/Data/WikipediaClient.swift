@@ -73,6 +73,53 @@ actor WikipediaClient {
         return try await search(query: query, language: language, scope: .fullText, limit: 6)
     }
 
+    /// A selected word, from the dictionary in the article's language first,
+    /// then the other; as written, then lowercased, as a sentence's first
+    /// word would be. Nil when neither has an entry.
+    func define(_ word: String, language: String) async throws -> DictionaryEntry? {
+        let forms = [word, word.lowercased()].reduce(into: [String]()) { if !$0.contains($1) { $0.append($1) } }
+        let germanFirst = language == "de"
+        for german in [germanFirst, !germanFirst] {
+            for form in forms {
+                let entry = german
+                    ? try await germanEntry(form)
+                    : try await englishEntry(form, language: language)
+                if let entry { return entry }
+            }
+        }
+        return nil
+    }
+
+    private func germanEntry(_ word: String, followingForm form: String? = nil) async throws -> DictionaryEntry? {
+        struct Response: Decodable {
+            struct Parse: Decodable { let title: String; let wikitext: String }
+            let parse: Parse?
+        }
+        let response: Response = try await get(.wiktionaryWikitext(word: word, language: "de"))
+        guard let page = response.parse else { return nil }
+        switch Wiktionary.parseGerman(page.wikitext) {
+        case .entry(let groups):
+            guard let url = WikipediaEndpoint.wiktionaryURL(word: page.title, language: "de") else { return nil }
+            return DictionaryEntry(word: page.title, selectedForm: form, groups: groups, url: url)
+        case .formOf(let lemma) where form == nil:
+            return try await germanEntry(lemma, followingForm: page.title)
+        default:
+            return nil
+        }
+    }
+
+    private func englishEntry(_ word: String, language: String) async throws -> DictionaryEntry? {
+        let usages: [String: [WiktionaryUsage]]
+        do {
+            usages = try await get(.wiktionaryDefinitions(word: word))
+        } catch WikipediaError.httpStatus(404) {
+            return nil
+        }
+        let groups = Wiktionary.groups(usages, language: language)
+        guard !groups.isEmpty, let url = WikipediaEndpoint.wiktionaryURL(word: word, language: "en") else { return nil }
+        return DictionaryEntry(word: word, groups: groups, url: url)
+    }
+
     func mediaList(title: String, language: String) async throws -> [MediaItem] {
         let response: MediaListResponse = try await get(.mediaList(title: title, language: language))
         return response.galleryImages

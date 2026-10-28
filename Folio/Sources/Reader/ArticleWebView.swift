@@ -41,6 +41,7 @@ struct ArticleWebView: UIViewRepresentable {
     var onActiveSection: (String?) -> Void = { _ in }
     var onReady: () -> Void = {}
     var onReload: () -> Void = {}
+    var onLookUp: (String) -> Void = { _ in }
 
     func makeCoordinator() -> Coordinator {
         Coordinator(
@@ -94,7 +95,8 @@ struct ArticleWebView: UIViewRepresentable {
         controller.add(context.coordinator, name: "painted")
         configuration.userContentController = controller
 
-        let webView = WKWebView(frame: .zero, configuration: configuration)
+        let webView = ReaderWebView(frame: .zero, configuration: configuration)
+        webView.onLookUp = onLookUp
         webView.isOpaque = false
         webView.backgroundColor = .clear
         webView.scrollView.backgroundColor = .clear
@@ -115,6 +117,7 @@ struct ArticleWebView: UIViewRepresentable {
         context.coordinator.onReady = onReady
         context.coordinator.onReload = onReload
         context.coordinator.initialScrollY = initialScrollY
+        (webView as? ReaderWebView)?.onLookUp = onLookUp
 
         let insets = UIEdgeInsets(top: contentInsets.top, left: 0, bottom: contentInsets.bottom, right: 0)
         let scrollView = webView.scrollView
@@ -442,6 +445,33 @@ struct ArticleWebView: UIViewRepresentable {
         /// titles; URLs generally use the former while API titles use the latter.
         private static func normalizedTitle(_ title: String) -> String {
             title.replacingOccurrences(of: "_", with: " ")
+        }
+    }
+}
+
+/// The reader's web view, with "Wiktionary" in the selection menu beside
+/// iOS's own Look Up.
+final class ReaderWebView: WKWebView {
+    var onLookUp: ((String) -> Void)?
+
+    override func buildMenu(with builder: any UIMenuBuilder) {
+        super.buildMenu(with: builder)
+        let action = UIAction(title: "Wiktionary", image: UIImage(systemName: "character.book.closed")) { [weak self] _ in
+            self?.lookUpSelection()
+        }
+        let menu = UIMenu(options: .displayInline, children: [action])
+        if builder.menu(for: .lookup) != nil {
+            builder.insertSibling(menu, afterMenu: .lookup)
+        } else {
+            builder.insertChild(menu, atStartOfMenu: .root)
+        }
+    }
+
+    private func lookUpSelection() {
+        Task { @MainActor in
+            let selection = try? await evaluateJavaScript("window.getSelection().toString()") as? String
+            guard let word = selection.flatMap(Wiktionary.word(fromSelection:)) else { return }
+            onLookUp?(word)
         }
     }
 }

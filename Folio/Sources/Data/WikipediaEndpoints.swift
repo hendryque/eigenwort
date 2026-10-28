@@ -14,6 +14,10 @@ enum WikipediaEndpoint {
     case langlinks(title: String, language: String)
     case nearby(language: String, latitude: Double, longitude: Double, radiusMeters: Int, limit: Int)
     case mediaList(title: String, language: String)
+    /// English Wiktionary's definitions, for words of any language.
+    case wiktionaryDefinitions(word: String)
+    /// A Wiktionary page's wikitext, for German Wiktionary's house template.
+    case wiktionaryWikitext(word: String, language: String)
 
     func url() -> URL? {
         switch self {
@@ -74,6 +78,22 @@ enum WikipediaEndpoint {
             guard let escaped = Self.encodePathTitle(title) else { return nil }
             return URL(string: "https://\(language).wikipedia.org/api/rest_v1/page/media-list/\(escaped)")
 
+        case .wiktionaryDefinitions(let word):
+            guard let escaped = Self.encodePathTitle(word) else { return nil }
+            return URL(string: "https://en.wiktionary.org/api/rest_v1/page/definition/\(escaped)")
+
+        case .wiktionaryWikitext(let word, let language):
+            var components = URLComponents(string: "https://\(language).wiktionary.org/w/api.php")
+            components?.queryItems = [
+                URLQueryItem(name: "action", value: "parse"),
+                URLQueryItem(name: "page", value: word),
+                URLQueryItem(name: "prop", value: "wikitext"),
+                URLQueryItem(name: "redirects", value: "1"),
+                URLQueryItem(name: "format", value: "json"),
+                URLQueryItem(name: "formatversion", value: "2")
+            ]
+            return components?.url
+
         case .nearby(let language, let lat, let lon, let radius, let limit):
             var components = URLComponents(string: "https://\(language).wikipedia.org/w/api.php")
             components?.queryItems = [
@@ -106,6 +126,11 @@ enum WikipediaEndpoint {
             URLQueryItem(name: "action", value: "history")
         ]
         return components?.url
+    }
+
+    static func wiktionaryURL(word: String, language: String) -> URL? {
+        guard let escaped = encodePathTitle(word) else { return nil }
+        return URL(string: "https://\(language).wiktionary.org/wiki/\(escaped)")
     }
 
     private static func encodePathTitle(_ title: String) -> String? {

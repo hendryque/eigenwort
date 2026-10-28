@@ -22,6 +22,7 @@ struct ArticleReaderView: View {
     @State private var sections: [ArticleSection] = []
     @State private var showTOC = false
     @State private var showGallery = false
+    @State private var lookup: WordLookup?
     @State private var galleryItems: [MediaItem] = []
     @State private var lightbox: LightboxRequest?
     @State private var pendingScrollAnchor: String?
@@ -103,6 +104,9 @@ struct ArticleReaderView: View {
         .sheet(isPresented: $showGallery) {
             ArticleImageGallery(items: galleryItems, theme: theme)
         }
+        .sheet(item: $lookup) { lookup in
+            WordLookupSheet(lookup: lookup, theme: theme)
+        }
         .fullScreenCover(item: $lightbox) { request in
             ImageLightbox(request: request)
         }
@@ -131,6 +135,11 @@ struct ArticleReaderView: View {
         #if DEBUG
         // `-demoCycleThemes 1.6` steps through the looks as the theme button
         // would, once the page is up, for the film.
+        // `-demoLookUp Treibgut` opens the dictionary sheet once the page is up.
+        .onChange(of: webViewReady) { _, ready in
+            guard ready, let word = UserDefaults.standard.string(forKey: "demoLookUp") else { return }
+            lookup = WordLookup(word: word, language: language)
+        }
         .onChange(of: webViewReady) { _, ready in
             let interval = UserDefaults.standard.double(forKey: "demoCycleThemes")
             guard ready, interval > 0 else { return }
@@ -181,7 +190,8 @@ struct ArticleReaderView: View {
                     onScroll: handleScroll,
                     onActiveSection: { activeSectionAnchor = $0 },
                     onReady: { webViewReady = true },
-                    onReload: handleContentProcessTerminated
+                    onReload: handleContentProcessTerminated,
+                    onLookUp: { lookup = WordLookup(word: $0, language: language) }
                 )
                 .ignoresSafeArea()
                 .opacity(webViewReady ? 1 : 0)
