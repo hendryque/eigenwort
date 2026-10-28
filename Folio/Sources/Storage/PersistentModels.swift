@@ -2,13 +2,16 @@ import Foundation
 import SwiftData
 import CoreGraphics
 
+// Every stored property carries a default: CloudKit mirroring requires it,
+// since a record may arrive from another device with fields missing.
+
 @Model
 final class Bookmark {
-    var title: String
-    var language: String
+    var title: String = ""
+    var language: String = "en"
     var summary: String?
     var thumbnailURL: URL?
-    var addedAt: Date
+    var addedAt: Date = Date.now
 
     init(title: String, language: String, summary: String? = nil, thumbnailURL: URL? = nil, addedAt: Date = .now) {
         self.title = title
@@ -21,9 +24,9 @@ final class Bookmark {
 
 @Model
 final class SearchHistoryEntry {
-    var query: String
-    var language: String
-    var searchedAt: Date
+    var query: String = ""
+    var language: String = "en"
+    var searchedAt: Date = Date.now
 
     init(query: String, language: String, searchedAt: Date = .now) {
         self.query = query
@@ -34,11 +37,11 @@ final class SearchHistoryEntry {
 
 @Model
 final class HistoryEntry {
-    var title: String
-    var language: String
+    var title: String = ""
+    var language: String = "en"
     var summary: String?
     var thumbnailURL: URL?
-    var readAt: Date
+    var readAt: Date = Date.now
     var scrollY: Double = 0
 
     init(
@@ -150,9 +153,9 @@ extension CachedArticle {
 
 @Model
 final class AppSettings {
-    var defaultLanguage: String
-    var theme: String
-    var fontScale: Double
+    var defaultLanguage: String = "en"
+    var theme: String = Theme.system.rawValue
+    var fontScale: Double = 1.0
 
     init(defaultLanguage: String = "en", theme: String = Theme.system.rawValue, fontScale: Double = 1.0) {
         self.defaultLanguage = defaultLanguage

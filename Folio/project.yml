@@ -63,6 +63,8 @@ targets:
           - AlfaSlabOne-Regular.ttf
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: NO
+        UIBackgroundModes:
+          - remote-notification
         UIApplicationSupportsIndirectInputEvents: YES
         UILaunchScreen: {}
         ITSAppUsesNonExemptEncryption: NO
@@ -78,6 +80,13 @@ targets:
           - UIInterfaceOrientationLandscapeRight
     dependencies:
       - target: OpenInEigenwort
+    entitlements:
+      path: Folio.entitlements
+      properties:
+        com.apple.developer.icloud-container-identifiers:
+          - iCloud.me.scott.folio
+        com.apple.developer.icloud-services:
+          - CloudKit
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: me.scott.folio

@@ -31,9 +31,10 @@ Package.resolved
 *.p12
 *.mobileprovision
 
-# XcodeGen-generated plists
+# XcodeGen-generated plists and entitlements
 Folio/GeneratedInfo.plist
 Folio/OpenIn/Info.plist
+Folio/Folio.entitlements
 
 # Claude Code
 .claude/
