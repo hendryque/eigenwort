@@ -31,13 +31,17 @@ grid of photographs, so a glance tells you what the day is about. Nearby puts
 the articles around you on a map. Search covers the whole encyclopedia, in
 English or German with one tap.
 
+Every article ends with a few related ones, and a word you select can be
+looked up in Wiktionary, in English or German.
+
 Five themes change the whole app, not only its colours. Light, Sepia and Dark
 keep the book. De:Bug and Gimmick are tributes to two magazines, each with its
 own typefaces and its own paper.
 
-Articles you read and searches you make are kept on your phone, where you can
-find them again. Nothing about you leaves it except the requests Wikipedia
-needs to answer. There is no account, no tracking and no advertising.
+Articles you read, searches you make and bookmarks you keep stay with you,
+synced through your own iCloud so your devices agree. Nothing about you goes
+anywhere else except the requests Wikipedia needs to answer. There is no
+account, no tracking and no advertising.
 
 Eigenwort is open source.
 
@@ -86,13 +90,17 @@ app's own interface stays English, which the last paragraph says.
 > eine Karte. Die Suche umfasst die ganze Enzyklopädie, auf Deutsch oder
 > Englisch mit einem Tipp.
 >
+> Jeder Artikel endet mit einigen verwandten, und ein markiertes Wort schlägt
+> Wiktionary nach, auf Deutsch oder Englisch.
+>
 > Fünf Themen verändern die ganze App, nicht nur ihre Farben. Hell, Sepia
 > und Dunkel bleiben beim Buch. De:Bug und Gimmick sind Hommagen an zwei
 > Zeitschriften, jede mit eigenen Schriften und eigenem Papier.
 >
-> Was du liest und wonach du suchst, bleibt auf deinem Telefon, wo du es
-> wiederfindest. Nichts über dich verlässt es, außer den Anfragen, die
-> Wikipedia zum Antworten braucht. Kein Konto, kein Tracking, keine Werbung.
+> Was du liest, wonach du suchst und was du dir merkst, bleibt bei dir,
+> abgeglichen über deine eigene iCloud, damit deine Geräte dasselbe wissen.
+> Nichts über dich geht sonst irgendwohin, außer den Anfragen, die Wikipedia
+> zum Antworten braucht. Kein Konto, kein Tracking, keine Werbung.
 >
 > Eigenwort ist Open Source. Die Oberfläche der App ist auf Englisch.
 
@@ -131,8 +139,10 @@ The honest answers, from PRIVACY.md:
   *not linked to the user*, *not used for tracking*. The coordinates do leave
   the phone, to Wikipedia's geosearch, and that is what the question asks.
 - **Everything else: not collected.** Reading history, searches and bookmarks
-  stay on the device. Search terms go to Wikipedia as queries, which Apple's
-  definition treats as using a service, not collecting data.
+  stay on the device and in the reader's own private iCloud database, which
+  the developer cannot read. Search terms go to Wikipedia as queries, which
+  Apple's definition treats as using a service, not collecting data. Worth
+  re-reading Apple's definitions once before submitting, now that sync exists.
 - No tracking, no third-party SDKs.
 
 ## Review notes

@@ -7,7 +7,8 @@ back to me.
 ## What leaves your phone
 
 Every article, search and picture comes from Wikipedia's own servers
-(`wikipedia.org` and `wikimedia.org`). Those requests carry what any browser
+(`wikipedia.org` and `wikimedia.org`), and a word you look up comes from
+Wiktionary's (`wiktionary.org`), run by the same foundation. Those requests carry what any browser
 sends: the page you asked for, your IP address, and the app's name and
 version. Wikimedia's handling of them is covered by the
 [Wikimedia Foundation privacy policy](https://foundation.wikimedia.org/wiki/Policy:Privacy_policy).
@@ -16,11 +17,18 @@ version. Wikimedia's handling of them is covered by the
 you use it. The coordinates go to Wikipedia's geosearch service as the search
 area, and nowhere else. The app does not store them.
 
-## What stays on your phone
+## Your history, bookmarks and settings
 
-Your reading history, search history, bookmarks and settings are kept on the
-device, in the app's own storage, so the tabs can show them. They are never
-uploaded. Deleting the app deletes them.
+Your reading history, search history, bookmarks and settings are kept in the
+app's own storage, so the tabs can show them. If you are signed into iCloud,
+they are also synced through your private iCloud database, so your devices
+agree. That database belongs to your Apple account: I cannot see it, and
+Apple's iCloud terms cover it. To keep them on this device only, turn off
+Eigenwort under Settings › your name › iCloud. Deleting the app deletes the
+copy on the phone; the iCloud copy is removed under iCloud › Manage Storage.
+
+Articles the app keeps for reading offline stay on the device and are never
+synced.
 
 ## Crash reports
 

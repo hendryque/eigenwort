@@ -23,17 +23,23 @@ https://github.com/user-attachments/assets/a0b10a76-21e0-48d6-8110-4a0a917e4c69
   plus two magazine tributes, De:Bug and Gimmick, that swap the faces too, pinch
   to change text size, table of contents, and image gallery. A lead image
   promoted to the hero is not repeated in the article body, and any image
-  opens full screen with its caption, the hero included.
+  opens full screen with its caption, the hero included. Every article ends
+  in a short list of related ones, and a selected word can be looked up in
+  Wiktionary, English or German.
 - Nearby: Wikipedia articles around you, on a map
-- Search, bookmarks, and reading history, stored locally with SwiftData
+- Search that completes titles as you type and finds the whole encyclopedia
+  for a phrase, so "donau auen" finds Nationalpark Donau-Auen
+- Bookmarks, reading history and settings, stored with SwiftData and synced
+  across your devices through your own iCloud
 - English and German Wikipedia, toggled from the header
 - Wikipedia links open in the app: paste one into search, or pick "Open in
   Eigenwort" in the share sheet from Safari or anywhere else
 - Articles and images are cached and prefetched, so most things open instantly
 
 There is no backend, no analytics, and no accounts. The app talks directly to
-Wikipedia's public APIs and nothing else. Nearby sends your coordinates to
-Wikipedia's geosearch endpoint and nowhere further.
+Wikipedia's and Wiktionary's public APIs, and syncs through your private
+iCloud database, which only your Apple account can read. Nearby sends your
+coordinates to Wikipedia's geosearch endpoint and nowhere further.
 
 ## Typography
 
