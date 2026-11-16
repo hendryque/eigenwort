@@ -179,7 +179,7 @@ section.folio-endmatter li a {
 }
 
 /* Data wants aligned figures of even width, prose does not. */
-table, .infobox, sup, sub {
+table, .infobox, wiki-chart, sup, sub {
     font-variant-numeric: lining-nums tabular-nums;
 }
 
@@ -269,10 +269,12 @@ sup a { border-bottom: none; }
 .noprint,
 .navbox,
 .vertical-navbox,
-/* de.wiki's names for the navbox and authority control. Not by their other
+/* de.wiki's names for the navbox, authority control and a chart's data
+   links. Not by their other
    classes: infoboxes share hintergrundfarbe1 and would vanish too. */
 .navileiste,
 #normdaten,
+.dewiki-chart-info,
 .ambox,
 .metadata,
 .mw-references-wrap,
@@ -606,6 +608,24 @@ ul.gallery .thumb img {
     display: block;
 }
 ul.gallery .gallerytext { padding: 6px 0 0; }
+
+/* {{#chart}} comes as an SVG drawn 400px wide, which Wikipedia's script
+   resizes and we don't run. Scaled from its viewBox it takes the width of a
+   figure; its colours are Wikipedia's variables, so ours stand in for them. */
+wiki-chart {
+    display: block;
+    margin: 1.2em -20px;
+    --background-color-base: transparent;
+    --color-base: var(--folio-fg);
+    --color-emphasized: var(--folio-fg);
+    --color-subtle: var(--folio-secondary);
+    --border-color-muted: var(--folio-divider);
+}
+wiki-chart svg { display: block; width: 100%; height: auto; }
+wiki-chart text { font-family: var(--folio-sans) !important; }
+/* de.wiki's frame takes its colour from a stylesheet we strip, which left
+   a thick border in text colour, and its width is set for a desktop page. */
+.dewiki-chart { border: 0 !important; width: auto !important; }
 
 /* Math — keep it readable */
 .mwe-math-element { font-size: 1em; }
