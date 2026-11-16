@@ -51,6 +51,7 @@ struct ArticleReaderView: View {
                 BottomReaderToolbar(
                     isBookmarked: isBookmarked,
                     shareURL: shareURL,
+                    shareTitle: displayTitle,
                     themeIcon: themeIcon,
                     themeLabel: theme.displayName,
                     hasSections: !sections.isEmpty,
@@ -576,6 +577,7 @@ private struct BottomReaderToolbar: View {
     @Environment(\.folioTheme) private var theme
     let isBookmarked: Bool
     let shareURL: URL
+    let shareTitle: String
     let themeIcon: String
     let themeLabel: String
     let hasSections: Bool
@@ -589,7 +591,9 @@ private struct BottomReaderToolbar: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            ShareLink(item: shareURL) {
+            // A bare URL leaves OmniFocus without a name for the action; like
+            // Safari, send the title as text beside it.
+            ShareLink(item: shareURL, subject: Text(shareTitle), message: Text(shareTitle)) {
                 Image(systemName: "square.and.arrow.up")
                     .accessibilityLabel("Share")
             }
