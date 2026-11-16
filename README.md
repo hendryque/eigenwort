@@ -25,7 +25,9 @@ https://github.com/user-attachments/assets/a0b10a76-21e0-48d6-8110-4a0a917e4c69
   promoted to the hero is not repeated in the article body, and any image
   opens full screen with its caption, the hero included. Every article ends
   in a short list of related ones, and a selected word can be looked up in
-  Wiktionary, English or German.
+  Wiktionary, English or German. Infoboxes, charts and chess diagrams are
+  reset for a phone: they take the screen's width, the theme's colours and
+  its data face.
 - Nearby: Wikipedia articles around you, on a map
 - Search that completes titles as you type and finds the whole encyclopedia
   for a phrase, so "donau auen" finds Nationalpark Donau-Auen
@@ -47,13 +49,13 @@ The type follows the reading situation. Today and Nearby are scanning
 surfaces, so titles there use EB Garamond Medium, italic on the grid, and
 each Today tile darkens its image only as much as that image's measured
 brightness requires. In the magazine themes the tabs take the magazine's
-faces too, and tables and captions everywhere are set in the theme's data
-face: the system font in the book themes, Barlow in De:Bug, Comic Neue in
+faces too, and tables, charts and captions everywhere are set in the theme's
+data face: the system font in the book themes, Barlow in De:Bug, Comic Neue in
 Gimmick. The reader sets 18px at 1.52 line height, sized by
 x-height rather than by the nominal number, with the measure capped at 26rem,
 which holds about 63 characters at any reader size. Prose uses old-style
-figures; tables and infoboxes keep lining tabular figures so columns align. A
-costume theme carries its own face and its own measurements, because size is
+figures; tables, infoboxes and charts keep lining tabular figures so columns
+align. A costume theme carries its own face and its own measurements, because size is
 chosen by x-height and not every face agrees about what a pixel is worth. The
 display title scales independently and stops at 120%, while body text keeps
 the full setting range. Eigenwort restores each article's document language
