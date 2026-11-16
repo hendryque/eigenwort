@@ -57,6 +57,46 @@
         });
     }
 
+    // de.wiki's {{Schachbrett}} and en.wiki's {{Chess diagram}} draw a board
+    // for a 230px thumb. Mark it for article.css, which gives it the column,
+    // and load the pieces as drawn, so they stay sharp at that size.
+    var PIECE = /\/Chess_[^\/]*t45\.svg/;
+    var THUMB = /^https:\/\/[^\/]+(\/wikipedia\/commons)\/thumb(\/[^\/]+\/[^\/]+\/[^\/]+\.svg)\//;
+
+    function setChessBoards() {
+        var boards = new Set();
+        document.querySelectorAll('img').forEach(function(img) {
+            if (!PIECE.test(img.src)) return;
+            var board = img.closest('.chessboard') || (img.closest('.thumbinner') || {}).parentElement;
+            if (board) boards.add(board);
+        });
+        boards.forEach(function(board) {
+            board.classList.add('folio-chess');
+            board.querySelectorAll('img').forEach(function(img) {
+                var original = img.src.match(THUMB);
+                if (!original) return;
+                img.removeAttribute('srcset');
+                img.src = 'https://upload.wikimedia.org' + original[1] + original[2];
+            });
+            board.querySelectorAll('.chess-pieces').forEach(placePieces);
+        });
+    }
+
+    // {{Chess diagram}} sets each piece in px on a board of fixed size, by a
+    // stylesheet we strip. As shares of the board they scale with it.
+    function placePieces(pieces) {
+        var board = pieces.querySelector('img');
+        var size = board && parseFloat(board.getAttribute('width'));
+        if (!size) return;
+        pieces.querySelectorAll(':scope > div').forEach(function(piece) {
+            var img = piece.querySelector('img');
+            var width = img && parseFloat(img.getAttribute('width'));
+            piece.style.top = parseFloat(piece.style.top) / size * 100 + '%';
+            piece.style.left = parseFloat(piece.style.left) / size * 100 + '%';
+            if (width) piece.style.width = width / size * 100 + '%';
+        });
+    }
+
     function unwrap() {
         cleanInfoboxStyles();
         rowMultipleImages();
@@ -97,6 +137,8 @@
 
             ph.parentNode.replaceChild(img, ph);
         });
+        // After the placeholders: en.wiki's board picture is one of them.
+        setChessBoards();
     }
 
     if (document.readyState === 'loading') {

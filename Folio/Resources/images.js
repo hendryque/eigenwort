@@ -31,6 +31,9 @@
     }
 
     document.addEventListener('click', function(event) {
+        // A chess board is a diagram of many small pictures, none of them
+        // worth a lightbox; lazy.js marks it.
+        if (event.target.closest('.folio-chess')) return;
         // The hero is a CSS background, so there is no <img> to hit.
         const hero = event.target.closest('.folio-header[data-hero-src]');
         if (hero) {

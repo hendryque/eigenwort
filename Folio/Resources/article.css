@@ -627,6 +627,65 @@ wiki-chart text { font-family: var(--folio-sans) !important; }
    a thick border in text colour, and its width is set for a desktop page. */
 .dewiki-chart { border: 0 !important; width: auto !important; }
 
+/* Chess diagrams, marked by lazy.js. The board takes the column, its squares
+   the width the rank numbers leave; files below and ranks on the left, as in
+   a book. The squares keep Wikipedia's colours, as a chart keeps its own. */
+.folio-chess,
+.folio-chess .thumbinner,
+.folio-chess > .center {
+    float: none !important;
+    width: auto !important;
+    max-width: none !important;
+    border: 0 !important;
+    padding: 0;
+    background: transparent;
+}
+.folio-chess {
+    margin: 1.2em 0 !important;
+    container-type: inline-size;
+}
+/* The title: de.wiki's sits in the frame, en.wiki's above it. */
+.folio-chess .thumbinner > div:first-child,
+.folio-chess > .center {
+    font-family: var(--folio-sans);
+    font-size: calc(0.88em * var(--folio-data-scale, 1));
+    font-weight: 700;
+    margin-bottom: 6px;
+    hyphens: manual;
+    -webkit-hyphens: manual;
+}
+.folio-chess table {
+    display: table;
+    table-layout: fixed;
+    margin: 0;
+}
+.folio-chess tr:first-child,
+.folio-chess td:last-child { display: none; }
+.folio-chess td {
+    border: 0;
+    padding: 0 !important;
+    vertical-align: middle;
+    text-align: center;
+}
+.folio-chess td:first-child { width: 1.5em !important; }
+/* en.wiki's board is one cell over eight rows, and WebKit hands its height
+   to the last of them; each rank takes a square's height instead. */
+.folio-chess tr:not(:last-child) > td:first-child {
+    height: calc((100cqw - 1.5em) / 8) !important;
+}
+.folio-chess td:first-child,
+.folio-chess tr:last-child td { color: var(--folio-secondary); }
+.folio-chess tr:last-child td { padding-top: 4px !important; }
+.folio-chess .chess-pieces { position: relative; }
+.folio-chess .chess-pieces > div { position: absolute; }
+.folio-chess .chess-pieces span { display: block; }
+.folio-chess td img {
+    display: block;
+    width: 100% !important;
+    height: auto !important;
+}
+.folio-chess .thumbcaption { padding: 8px 0 0; }
+
 /* Math — keep it readable */
 .mwe-math-element { font-size: 1em; }
 
