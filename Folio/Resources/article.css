@@ -423,7 +423,9 @@ section[data-mw-section-id].folio-reference-section {
     -webkit-hyphens: none;
     overflow-wrap: normal;
 }
-.infobox th { white-space: nowrap; }
+/* Labels only: a title across both columns kept on one line pushed the
+   whole box past the screen (Graz, UNESCO-Welterbe). */
+.infobox th:not([colspan]) { white-space: nowrap; }
 /* German labels need a steady share of the row; stated, the split no longer
    follows whichever value happens to be longest. */
 .infobox tr > td:first-child:nth-last-child(2),
@@ -452,6 +454,8 @@ section[data-mw-section-id].folio-reference-section {
     margin: 0;
     padding-left: 0;
 }
+/* A browser indents a <dd> by 40px, which a value column cannot spare. */
+.infobox dd { margin-left: 0; }
 .infobox td li {
     margin: 0 0 0.25em 0;
     padding-left: 0.8em;
