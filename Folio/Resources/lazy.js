@@ -24,6 +24,11 @@
     }
 
     function cleanInfoboxStyles() {
+        // The box itself is ours entirely. de.wiki sets its padding, type
+        // size, frame and width inline, and inline beats the card.
+        document.querySelectorAll('.infobox[style]').forEach(function(box) {
+            box.removeAttribute('style');
+        });
         document.querySelectorAll('.infobox [style]').forEach(function(el) {
             var kept = [];
             el.getAttribute('style').split(';').forEach(function(declaration) {

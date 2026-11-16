@@ -297,6 +297,7 @@ nav,
 [id="pcs-edit-section-title-description"],
 [data-description-source],
 .pcs-ref-item,
+.pcs-table-infobox,
 .pcs-collapse-table-icon,
 .pcs-collapse-table-aria,
 .pcs-collapse-table-collapse-text,
@@ -358,31 +359,36 @@ section[data-mw-section-id].folio-reference-section {
     border-color: var(--folio-divider);
 }
 
-.infobox {
-    table-layout: fixed;
-    container-type: inline-size;
-    /* Wikipedia's inline side margins sit outside our forced width and
-       pushed the card off-centre and past the right padding. */
-    margin-left: auto !important;
-    margin-right: auto !important;
-}
+.infobox { container-type: inline-size; }
 .infobox td, .infobox th {
     overflow-wrap: anywhere;
 }
 
+/* Edge to edge like a figure, so the text inside sits on the prose's edge. */
 .infobox, .sidebar, .vertical-navbox {
     display: block;
     float: none;
-    width: 100% !important;
-    margin: 1em 0;
-    padding: 12px;
+    width: calc(100% + 40px) !important;
+    max-width: none !important;
+    margin: 1em -20px !important;
+    padding: 16px 20px;
     background: var(--folio-card-bg);
     border: 0;
-    border-radius: 10px;
     /* The sans's x-height is 1.29 times the garalde's, so 0.9em read 16% larger
        than the prose. 0.72em sets the data a notch under it. */
     font-size: calc(0.72em * var(--folio-data-scale, 1));
     line-height: 1.3;
+}
+/* As a block, the box wraps its rows in an anonymous table that shrinks to
+   them: rules stopped short of the card, the label share never held. */
+.infobox > tbody, .sidebar > tbody { display: table; width: 100%; }
+/* The row's rule already divides; an <hr> only added a blank band. */
+.infobox hr { display: none; }
+/* de.wiki's photo caption is a plain cell; set it like a figure's. */
+.infobox tr:has(> td.photo) + tr > td {
+    font-style: italic;
+    font-size: 0.88em;
+    color: var(--folio-secondary);
 }
 /* The infobox is a block, so WebKit gives its caption an anonymous table of
    its own that shrinks to a syllable. A block, and names do not hyphenate. */
@@ -418,9 +424,8 @@ section[data-mw-section-id].folio-reference-section {
     overflow-wrap: normal;
 }
 .infobox th { white-space: nowrap; }
-/* Fixed layout takes its columns from the first row, and infoboxes open with a
-   colspan=2 title, which splits them 50/50. German labels do not fit that, so
-   state the split instead of inheriting the accident. */
+/* German labels need a steady share of the row; stated, the split no longer
+   follows whichever value happens to be longest. */
 .infobox tr > td:first-child:nth-last-child(2),
 .infobox tr > th:first-child:nth-last-child(2) { width: 38%; }
 /* Long German compounds (`Umgangssprache`, `Bevölkerungsentwicklung`) are
