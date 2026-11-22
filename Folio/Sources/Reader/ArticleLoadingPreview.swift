@@ -138,9 +138,11 @@ struct ArticleLoadingPreview: View {
                 .frame(height: 220)
                 .allowsHitTesting(false)
 
+                let size = TitleFit.size(heroTitleSize, for: displayTitle, in: theme, room: layout.containerWidth - 40)
                 Text(displayTitle)
-                    .font(.custom(theme.titleFontName, size: heroTitleSize, relativeTo: .largeTitle))
-                    .titleInk(theme, size: heroTitleSize)
+                    .font(.custom(theme.titleFontName, size: size, relativeTo: .largeTitle))
+                    .tracking(size * theme.titleTracking)
+                    .titleInk(theme, size: size)
                     .padding(.horizontal, 20)
                     .padding(.bottom, 20)
             }
@@ -196,31 +198,42 @@ struct ArticleTitle: View {
     /// keeps the full range. Matches article.css.
     static func scale(_ fontScale: Double) -> Double { min(max(fontScale, 0.85), 1.2) }
 
+    /// The width the title stands in; its size depends on it, as in article.css.
+    @State private var width: CGFloat = 0
+
     var body: some View {
-        if theme.hasLogoTitles, let band = theme.palette.band {
-            // theme-gimmick.css: the title on a check band, its 64px top
-            // padding clearing the back button.
-            Text(title)
-                .font(titleFont)
-                .titleInk(theme, size: size)
-                .padding(.horizontal, 20)
-                .padding(.top, 68)
-                .padding(.bottom, 14)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(CheckPattern(tones: band))
-                .padding(.bottom, 4)
-        } else {
-            Text(title)
-                .font(titleFont)
-                .foregroundStyle(.primary)
-                .padding(.horizontal, 20)
-                // article.css: body's 16px plus the 40px that clears the back button.
-                .padding(.top, 60)
-                .padding(.bottom, 16)
+        Group {
+            if theme.hasLogoTitles, let band = theme.palette.band {
+                // theme-gimmick.css: the title on a check band, its 64px top
+                // padding clearing the back button.
+                Text(title)
+                    .font(titleFont)
+                    .tracking(size * theme.titleTracking)
+                    .titleInk(theme, size: size)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 68)
+                    .padding(.bottom, 14)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(CheckPattern(tones: band))
+                    .padding(.bottom, 4)
+            } else {
+                Text(title)
+                    .font(titleFont)
+                    .tracking(size * theme.titleTracking)
+                    .foregroundStyle(.primary)
+                    .padding(.horizontal, 20)
+                    // article.css: body's 16px plus the 40px that clears the back button.
+                    .padding(.top, 60)
+                    .padding(.bottom, 16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
     }
 
-    private var size: Double { theme.textOnlyTitleSize * Self.scale(fontScale) }
+    private var size: Double {
+        TitleFit.size(theme.textOnlyTitleSize * Self.scale(fontScale), for: title, in: theme, room: width - 40)
+    }
     private var titleFont: Font { .custom(theme.titleFontName, size: size, relativeTo: .largeTitle) }
 }
 

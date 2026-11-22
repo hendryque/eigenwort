@@ -6,7 +6,9 @@
     function signal() {
         try { window.webkit.messageHandlers.painted.postMessage(1); } catch (e) {}
     }
+    // fit.js measures headings in the faces just loaded, before anyone sees them.
     function afterLayout() {
+        try { window.folioFit && window.folioFit(); } catch (e) {}
         requestAnimationFrame(function () { requestAnimationFrame(signal); });
     }
     var queries = [];

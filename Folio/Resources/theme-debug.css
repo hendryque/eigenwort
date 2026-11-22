@@ -20,11 +20,12 @@ body[data-theme="debug"] h4 {
     font-family: "Barlow Semi Condensed", "Helvetica Neue", sans-serif;
     font-style: normal;
     font-weight: 700;
-    font-size: calc(42px * var(--folio-title-scale, 1.0));
+    --folio-title-size: 42px;
+    --folio-fit-em: var(--folio-title-em-debug, 0.01);
     line-height: 1.04;
 }
 [data-theme="debug"] .folio-header-textonly .folio-title {
-    font-size: calc(38px * var(--folio-title-scale, 1.0));
+    --folio-title-size: 38px;
 }
 
 [data-theme="debug"] .folio-colophon { font-family: var(--folio-sans); }

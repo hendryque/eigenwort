@@ -178,6 +178,8 @@ enum Theme: String, CaseIterable, Identifiable, Sendable {
         default: 40.8
         }
     }
+    /// The title is an h1: article.css tracks it -0.01em, Gimmick's slab +0.005em.
+    var titleTracking: Double { self == .gimmick ? 0.005 : -0.01 }
 }
 
 private struct FolioThemeKey: EnvironmentKey {

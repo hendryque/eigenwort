@@ -25,7 +25,8 @@ body[data-theme="gimmick"] h3 {
     font-family: "Alfa Slab One", "Rockwell", serif;
     font-style: normal;
     font-weight: 400;
-    font-size: calc(36px * var(--folio-title-scale, 1.0));
+    --folio-title-size: 36px;
+    --folio-fit-em: var(--folio-title-em-gimmick, 0.01);
     line-height: 1.08;
     color: var(--folio-card-bg);
     text-shadow: 0.06em 0.06em 0 var(--folio-link);
@@ -44,5 +45,5 @@ body[data-theme="gimmick"] h3 {
     margin: 0;
     color: var(--folio-card-bg);
     text-shadow: 0.06em 0.06em 0 var(--folio-link);
-    font-size: calc(32px * var(--folio-title-scale, 1.0));
+    --folio-title-size: 32px;
 }

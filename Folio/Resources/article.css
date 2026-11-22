@@ -4,6 +4,8 @@
        face, and Theme scales it back to Light's size as --folio-data-scale. */
     --folio-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
     --folio-font-scale: 1.0;
+    /* The column's width: the body's, which the title spans as well. */
+    --folio-room: min(100vw - 40px, var(--folio-measure, 26rem));
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
 }
@@ -43,12 +45,19 @@ h1, h2, h3, h4, h5, h6 {
 
 h1 { font-size: 1.85em; margin-top: 0; }
 h2 {
-    font-size: 1.42em;
+    --folio-fit-size: 1.42em;
     border-bottom: 1px solid var(--folio-divider);
     padding-bottom: 0.22em;
 }
-h3 { font-size: 1.22em; }
-h4 { font-size: 1.08em; }
+h3 { --folio-fit-size: 1.22em; }
+h4 { --folio-fit-size: 1.08em; }
+/* A single German word can be wider than the column. Display type comes down
+   until its widest word fits, measured by Swift for the title and fit.js for
+   headings; past 60% fit.js lets it hyphenate instead. */
+.folio-title, h2, h3, h4 {
+    font-size: max(calc(var(--folio-fit-size) * 0.6),
+                   min(var(--folio-fit-size), calc(var(--folio-room) / var(--folio-fit-em, 0.01))));
+}
 
 /* Exactly half a line (1.52em/2) so the paragraph gap stays a clean
    fraction of the line rather than an arbitrary value. */
@@ -89,21 +98,30 @@ a:active { opacity: 0.6; }
     pointer-events: none;
 }
 /* Body text needs hyphenation at this measure, German especially, but a
-   hyphenated headline reads as a typesetting failure. Display type is set
-   wide enough never to need it. */
+   hyphenated headline reads as a typesetting failure. Only a word too wide
+   even at the 60% floor may break, marked by fit.js. */
 h1, h2, h3, h4, h5, h6, .folio-title {
     hyphens: none;
     -webkit-hyphens: none;
+}
+.folio-fit-hyphenate {
+    hyphens: auto;
+    -webkit-hyphens: auto;
 }
 
 .folio-title {
     position: relative;
     z-index: 1;
+    /* As a flex item it would grow to its widest word and push off the hero. */
+    min-width: 0;
     margin: 0 20px 20px 20px;
     font-family: var(--folio-serif);
     font-style: italic;
     font-weight: 400;
-    font-size: calc(44.2px * var(--folio-title-scale, 1.0));
+    --folio-title-size: 44.2px;
+    --folio-fit-size: calc(var(--folio-title-size) * var(--folio-title-scale, 1.0));
+    /* Sepia and Dark set the title in Light's face, so they share its width. */
+    --folio-fit-em: var(--folio-title-em-light, 0.01);
     line-height: 1.05;
     color: #ffffff;
     border-bottom: none;
@@ -124,7 +142,7 @@ h1, h2, h3, h4, h5, h6, .folio-title {
     color: var(--folio-fg);
     margin: 0;
     text-shadow: none;
-    font-size: calc(40.8px * var(--folio-title-scale, 1.0));
+    --folio-title-size: 40.8px;
 }
 
 figure { margin: 1.2em -20px; }

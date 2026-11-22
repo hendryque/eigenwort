@@ -85,10 +85,12 @@ enum ArticleHTML {
     }
 
     private static func renderHeader(title: String, heroImageURL: URL?, focalPoint: CGPoint?) -> String {
-        let display = htmlEscape(title.replacingOccurrences(of: "_", with: " "))
+        let plain = title.replacingOccurrences(of: "_", with: " ")
+        let display = htmlEscape(plain)
+        let fit = titleFitStyle(plain)
         guard let url = heroImageURL else {
             return #"""
-            <header class="folio-header folio-header-textonly">
+            <header class="folio-header folio-header-textonly" style="\#(fit)">
               <h1 class="folio-title">\#(display)</h1>
             </header>
             """#
@@ -113,10 +115,25 @@ enum ArticleHTML {
             position = "50% 28%"
         }
         return #"""
-        <header class="folio-header" data-hero-src="\#(safeURL)" style="background-image: url('\#(safeURL)'); background-position: \#(position);">
+        <header class="folio-header" data-hero-src="\#(safeURL)" style="background-image: url('\#(safeURL)'); background-position: \#(position); \#(fit)">
           <h1 class="folio-title">\#(display)</h1>
         </header>
         """#
+    }
+
+    /// The title's widest word in every title face, keyed by the first theme
+    /// that sets it: a live theme switch keeps the document, so each theme's
+    /// CSS finds its own width already there.
+    static func titleFitStyle(_ title: String) -> String {
+        var faces = Set<String>()
+        return Theme.allCases
+            .filter { faces.insert($0.titleFontName).inserted }
+            .compactMap { theme in
+                let widest = TitleFit.widestPiece(of: title, fontName: theme.titleFontName, tracking: theme.titleTracking)
+                guard widest > 0 else { return nil }
+                return String(format: "--folio-title-em-%@: %.3f;", theme.cssDataTheme, widest)
+            }
+            .joined(separator: " ")
     }
 
     private static func htmlEscape(_ s: String) -> String {
