@@ -102,9 +102,10 @@ struct ArticleLoadingPreview: View {
         ArticleHTML.redirectNote(from: requestedTitle, to: displayTitle, language: language)
     }
 
-    /// article.css: the data face at a caption's 0.83em of the body.
+    /// article.css: the data face at a caption's size, 0.72em of the body,
+    /// which follows the reader's size only to 120%.
     private var redirectFont: Font {
-        let size = theme.bodySize * fontScale * 0.83 * theme.dataScale
+        let size = theme.bodySize * min(fontScale, 1.2) * 0.72 * theme.dataScale
         return theme.faceName(.data).map { .custom($0, size: size) } ?? .system(size: size)
     }
 

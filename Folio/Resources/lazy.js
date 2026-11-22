@@ -66,7 +66,6 @@
     // for a 230px thumb. Mark it for article.css, which gives it the column,
     // and load the pieces as drawn, so they stay sharp at that size.
     var PIECE = /\/Chess_[^\/]*t45\.svg/;
-    var THUMB = /^https:\/\/[^\/]+(\/wikipedia\/commons)\/thumb(\/[^\/]+\/[^\/]+\/[^\/]+\.svg)\//;
 
     function setChessBoards() {
         var boards = new Set();
@@ -78,10 +77,10 @@
         boards.forEach(function(board) {
             board.classList.add('folio-chess');
             board.querySelectorAll('img').forEach(function(img) {
-                var original = img.src.match(THUMB);
-                if (!original) return;
+                var file = original(img.src);
+                if (!file) return;
                 img.removeAttribute('srcset');
-                img.src = 'https://upload.wikimedia.org' + original[1] + original[2];
+                img.src = file;
             });
             board.querySelectorAll('.chess-pieces').forEach(placePieces);
         });
@@ -102,6 +101,29 @@
         });
     }
 
+    // The file a Wikimedia thumbnail was made from, on the upload host.
+    function original(src) {
+        var path = src.split('?')[0].match(/(\/wikipedia\/[^\/]+)\/thumb(\/[^\/]+\/[^\/]+\/[^\/]+)\/[^\/]+$/);
+        return path ? 'https://upload.wikimedia.org' + path[1] + path[2] : null;
+    }
+
+    // A figure is drawn as wide as the screen, 1125 pixels on a 3x phone, but
+    // Wikipedia sends 330 or 500 and nothing larger. Offer Wikimedia's own
+    // widths and let WebKit take what the screen needs: a drawing renders at
+    // any width, a photo no wider than its file, and then the file itself.
+    var WIDTHS = [500, 960, 1280];
+
+    function wideSources(ph, src) {
+        var file = parseInt(ph.getAttribute('data-data-file-width'), 10) || 0;
+        var drawing = ph.getAttribute('data-data-file-type') === 'drawing';
+        if (!drawing && !file) return null;
+        var set = WIDTHS.filter(function(width) { return drawing || width < file; })
+            .map(function(width) { return src.replace(/\/\d+px-/, '/' + width + 'px-') + ' ' + width + 'w'; });
+        var whole = !drawing && file < WIDTHS[WIDTHS.length - 1] && original(src);
+        if (whole) set.push(whole + ' ' + file + 'w');
+        return set.length ? set.join(', ') : null;
+    }
+
     function unwrap() {
         cleanInfoboxStyles();
         rowMultipleImages();
@@ -115,14 +137,20 @@
             img.src = src;
 
             var srcset = ph.getAttribute('data-srcset');
-            // A gallery cell comes at 120px for a desktop row; at half the
-            // measure on a 3x screen it wants 500, a width Wikimedia serves.
+            // Figures and gallery cells are drawn large; icons and pictures in
+            // tables keep Wikipedia's size. A gallery cell is half the screen.
             var cls = ph.getAttribute('data-class');
-            if (cls && cls.indexOf('gallery-img') >= 0) {
-                img.src = src.replace(/\/\d+px-/, '/500px-');
-                srcset = null;
+            var gallery = cls && cls.indexOf('gallery-img') >= 0;
+            var frame = ph.closest('figure, .thumb');
+            var wide = (gallery || frame) && wideSources(ph, src);
+            if (wide) {
+                srcset = wide;
+                img.sizes = gallery ? '50vw' : '100vw';
             }
             if (srcset) img.srcset = srcset;
+            // A drawing keeps to the text column (article.css), a photo runs
+            // edge to edge.
+            if (frame && ph.getAttribute('data-data-file-type') === 'drawing') frame.classList.add('folio-drawing');
 
             var alt = ph.getAttribute('data-alt') || ph.getAttribute('alt') || '';
             if (alt) img.alt = alt;
@@ -139,6 +167,9 @@
 
             var decoding = ph.getAttribute('data-decoding');
             if (decoding) img.decoding = decoding;
+            // Fifty figures in a long article load as they come near, not at once.
+            var loading = ph.getAttribute('data-loading');
+            if (loading) img.loading = loading;
 
             ph.parentNode.replaceChild(img, ph);
         });
