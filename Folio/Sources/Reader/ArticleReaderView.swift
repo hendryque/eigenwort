@@ -261,9 +261,7 @@ struct ArticleReaderView: View {
         (resolvedTitle ?? summary?.title ?? title).replacingOccurrences(of: "_", with: " ")
     }
 
-    /// History and bookmarks saved under the name that was asked for still
-    /// count as this article.
-    private var savedNames: [String] { [title, displayTitle] }
+    private var savedNames: ArticleNames { ArticleNames(requested: title, resolved: displayTitle) }
 
     private var settings: AppSettings? { settingsList.first }
     /// Resolved once by ContentView, so Auto never reaches the stylesheet.
@@ -509,7 +507,7 @@ struct ArticleReaderView: View {
 
         // History lists articles, not visits: re-reading one bumps its existing
         // row to the top instead of stacking another copy.
-        let names = savedNames
+        let names = savedNames.all
         let snapshotLanguage = language
         let descriptor = FetchDescriptor<HistoryEntry>(
             predicate: #Predicate { entry in
@@ -552,7 +550,7 @@ struct ArticleReaderView: View {
     /// for this (title, language). Checks history first (more frequently
     /// updated) then bookmarks.
     private func previousMetadata() -> (summary: String?, thumbnailURL: URL?) {
-        let names = savedNames
+        let names = savedNames.all
         let snapshotLanguage = language
         let historyDescriptor = FetchDescriptor<HistoryEntry>(
             predicate: #Predicate { entry in
