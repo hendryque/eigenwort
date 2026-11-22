@@ -16,6 +16,8 @@ struct ArticleReaderView: View {
 
     @State private var summary: ArticleSummary?
     @State private var html: String?
+    /// What a redirect resolved to, read from the HTML as it arrives.
+    @State private var resolvedTitle: String?
     @State private var loadFailure: LoadFailure?
     @State private var historyRecorded = false
 
@@ -216,6 +218,8 @@ struct ArticleReaderView: View {
                 } else if let summary, visionComplete {
                     ArticleLoadingPreview(
                         summary: summary,
+                        requestedTitle: title,
+                        language: language,
                         theme: theme,
                         fontScale: fontScale,
                         heroFocalPoint: heroFocalPoint
@@ -251,7 +255,15 @@ struct ArticleReaderView: View {
     }
 
     private var identityKey: String { "\(language)/\(title)" }
-    private var displayTitle: String { title.replacingOccurrences(of: "_", with: " ") }
+    /// The article's own name once known: a redirect such as "NYC" reads, shares
+    /// and is saved as the article it reached.
+    private var displayTitle: String {
+        (resolvedTitle ?? summary?.title ?? title).replacingOccurrences(of: "_", with: " ")
+    }
+
+    /// History and bookmarks saved under the name that was asked for still
+    /// count as this article.
+    private var savedNames: [String] { [title, displayTitle] }
 
     private var settings: AppSettings? { settingsList.first }
     /// Resolved once by ContentView, so Auto never reaches the stylesheet.
@@ -267,7 +279,7 @@ struct ArticleReaderView: View {
     private var shareURL: URL { summary?.pageURL ?? articleURL }
 
     private var isBookmarked: Bool {
-        bookmarks.contains { $0.title == title && $0.language == language }
+        bookmarks.contains { savedNames.contains($0.title) && $0.language == language }
     }
 
     private var themeIcon: String { theme.iconName }
@@ -282,12 +294,13 @@ struct ArticleReaderView: View {
     }
 
     private func toggleBookmark() {
-        if let existing = bookmarks.first(where: { $0.title == title && $0.language == language }) {
-            modelContext.delete(existing)
+        let existing = bookmarks.filter { savedNames.contains($0.title) && $0.language == language }
+        if !existing.isEmpty {
+            existing.forEach(modelContext.delete)
         } else {
             modelContext.insert(
                 Bookmark(
-                    title: title,
+                    title: displayTitle,
                     language: language,
                     summary: summary?.description,
                     thumbnailURL: summary?.thumbnailURL
@@ -429,7 +442,7 @@ struct ArticleReaderView: View {
         // Cache first — instant render if we have anything stored. Stale entries still
         // render immediately, then we silently refresh in the background.
         if let cached = fetchCachedArticle() {
-            html = cached.html
+            show(cached.html)
             if !cached.isFresh {
                 scheduleRefresh()
             }
@@ -438,10 +451,17 @@ struct ArticleReaderView: View {
         await fetchAndCacheHTML()
     }
 
+    /// Together, so history, which is written once the HTML is in, already
+    /// has the name a redirect resolved to.
+    private func show(_ article: String) {
+        html = article
+        resolvedTitle = ArticleHTML.resolvedTitle(in: article)
+    }
+
     private func fetchAndCacheHTML() async {
         do {
             let fresh = try await WikipediaClient.shared.mobileHTML(title: title, language: language)
-            html = fresh
+            show(fresh)
             upsertCache(html: fresh)
         } catch {
             if Task.isCancelled { return }
@@ -460,7 +480,7 @@ struct ArticleReaderView: View {
             do {
                 let fresh = try await WikipediaClient.shared.mobileHTML(title: title, language: language)
                 if Task.isCancelled { return }
-                html = fresh
+                show(fresh)
                 upsertCache(html: fresh)
             } catch {
                 // Silent — stale cache stays in place.
@@ -489,17 +509,18 @@ struct ArticleReaderView: View {
 
         // History lists articles, not visits: re-reading one bumps its existing
         // row to the top instead of stacking another copy.
-        let snapshotTitle = title
+        let names = savedNames
         let snapshotLanguage = language
         let descriptor = FetchDescriptor<HistoryEntry>(
             predicate: #Predicate { entry in
-                entry.title == snapshotTitle && entry.language == snapshotLanguage
+                names.contains(entry.title) && entry.language == snapshotLanguage
             },
             sortBy: [SortDescriptor(\.readAt, order: .reverse)]
         )
         let existing = (try? modelContext.fetch(descriptor)) ?? []
         if let newest = existing.first {
             newest.readAt = .now
+            newest.title = displayTitle
             // Backfill thumb/summary if the row was missing it.
             if newest.thumbnailURL == nil, let url = summary?.thumbnailURL {
                 newest.thumbnailURL = url
@@ -518,7 +539,7 @@ struct ArticleReaderView: View {
         let fallback = previousMetadata()
         modelContext.insert(
             HistoryEntry(
-                title: title,
+                title: displayTitle,
                 language: language,
                 summary: summary?.description ?? fallback.summary,
                 thumbnailURL: summary?.thumbnailURL ?? fallback.thumbnailURL
@@ -531,11 +552,11 @@ struct ArticleReaderView: View {
     /// for this (title, language). Checks history first (more frequently
     /// updated) then bookmarks.
     private func previousMetadata() -> (summary: String?, thumbnailURL: URL?) {
-        let snapshotTitle = title
+        let names = savedNames
         let snapshotLanguage = language
         let historyDescriptor = FetchDescriptor<HistoryEntry>(
             predicate: #Predicate { entry in
-                entry.title == snapshotTitle && entry.language == snapshotLanguage
+                names.contains(entry.title) && entry.language == snapshotLanguage
             },
             sortBy: [SortDescriptor(\.readAt, order: .reverse)]
         )
@@ -544,7 +565,7 @@ struct ArticleReaderView: View {
         }
         let bookmarkDescriptor = FetchDescriptor<Bookmark>(
             predicate: #Predicate { entry in
-                entry.title == snapshotTitle && entry.language == snapshotLanguage
+                names.contains(entry.title) && entry.language == snapshotLanguage
             }
         )
         if let entry = try? modelContext.fetch(bookmarkDescriptor).first {

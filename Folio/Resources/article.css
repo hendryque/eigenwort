@@ -161,6 +161,15 @@ figcaption {
     padding: 8px 20px 0 20px;
     font-style: italic;
 }
+/* Where a redirect came from, set like a caption but upright. It takes 8px
+   of the header's gap, so the lead moves down by its own line only. */
+.folio-redirect {
+    font-family: var(--folio-sans);
+    font-size: calc(0.83em * var(--folio-data-scale, 1));
+    line-height: 1.45;
+    color: var(--folio-secondary);
+    margin: -8px 0 16px 0;
+}
 
 img { max-width: 100%; height: auto; }
 

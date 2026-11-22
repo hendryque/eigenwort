@@ -45,7 +45,13 @@ enum ArticleHTML {
         // Run text nodes through Typographizer for curly quotes + en-dashes
         let typographedBody = leadedBody.typographized(language: language, isHTML: true)
 
-        let header = renderHeader(title: title, heroImageURL: heroImageURL, focalPoint: heroFocalPoint)
+        // A redirect is headed by the article it reached, as on Wikipedia.
+        let resolved = resolvedTitle(in: rawHTML)
+        let shownTitle = resolved ?? title
+        let header = renderHeader(title: shownTitle, heroImageURL: heroImageURL, focalPoint: heroFocalPoint)
+        let redirect = resolved
+            .flatMap { redirectNote(from: title, to: $0, language: language) }
+            .map { "<p class=\"folio-redirect\">\(htmlEscape($0))</p>" } ?? ""
 
         // painted.js waits on exactly these before signalling first paint.
         let fontQueriesJSON = (try? JSONEncoder().encode(theme.webFontQueries))
@@ -62,8 +68,9 @@ enum ArticleHTML {
         </head>
         <body data-theme="\(themeName)">
         \(header)
+        \(redirect)
         \(typographedBody)
-        \(renderColophon(title: title, language: language, articleURL: articleURL))
+        \(renderColophon(title: shownTitle, language: language, articleURL: articleURL))
         </body>
         </html>
         """
@@ -119,6 +126,30 @@ enum ArticleHTML {
           <h1 class="folio-title">\#(display)</h1>
         </header>
         """#
+    }
+
+    /// The article a page resolved to. mobile-html serves a redirect's target
+    /// and names it in `dc:isVersionOf`, so the title arrives with the article,
+    /// from the cache as well, and never has to wait for the summary.
+    static func resolvedTitle(in rawHTML: String) -> String? {
+        guard let match = rawHTML.firstMatch(of: /<link rel="dc:isVersionOf" href="([^"]+)"/) else { return nil }
+        let href = String(match.output.1).replacingOccurrences(of: "&amp;", with: "&")
+        guard let url = URL(string: href.hasPrefix("//") ? "https:" + href : href) else { return nil }
+        return WikipediaLink(url)?.title
+    }
+
+    /// Where a redirect came from, worded as Wikipedia words it; nil when the
+    /// two names differ only in underscores or the first letter's case.
+    static func redirectNote(from requested: String, to resolved: String, language: String) -> String? {
+        let asked = canonicalForm(requested)
+        guard asked != canonicalForm(resolved) else { return nil }
+        return language == "de" ? "Weitergeleitet von \(asked)" : "Redirected from \(asked)"
+    }
+
+    /// MediaWiki's own normalisation: spaces for underscores, a capital first.
+    private static func canonicalForm(_ title: String) -> String {
+        let spaced = title.replacingOccurrences(of: "_", with: " ").trimmingCharacters(in: .whitespaces)
+        return spaced.prefix(1).uppercased() + spaced.dropFirst()
     }
 
     /// The title's widest word in every title face, keyed by the first theme

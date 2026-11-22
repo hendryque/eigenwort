@@ -7,6 +7,9 @@ import UIKit
 /// is mostly invisible.
 struct ArticleLoadingPreview: View {
     let summary: ArticleSummary
+    /// The name the reader asked for, which a redirect may have resolved away.
+    let requestedTitle: String
+    let language: String
     let theme: Theme
     let fontScale: Double
     let heroFocalPoint: CGPoint?
@@ -36,6 +39,15 @@ struct ArticleLoadingPreview: View {
                         ArticleTitle(title: displayTitle, theme: theme, fontScale: fontScale)
                     }
 
+                    // article.css: .folio-redirect takes 8px of the header's 28.
+                    if let redirect {
+                        Text(redirect)
+                            .font(redirectFont)
+                            .foregroundStyle(theme.palette.secondaryColor)
+                            .padding(.horizontal, 20)
+                            .padding(.top, 20)
+                    }
+
                     if summary.extract != nil {
                         Text(styledExtract)
                             .font(.custom(theme.bodyFontName, size: theme.bodySize * fontScale, relativeTo: .body))
@@ -43,7 +55,7 @@ struct ArticleLoadingPreview: View {
                             .lineSpacing(extractLineSpacing)
                             .padding(.horizontal, 20)
                             // article.css: .folio-header's 28px bottom margin.
-                            .padding(.top, 28)
+                            .padding(.top, redirect == nil ? 28 : 16)
                     }
 
                     // Only surfaces on a genuinely slow load. Showing it
@@ -81,6 +93,16 @@ struct ArticleLoadingPreview: View {
 
     private var displayTitle: String {
         summary.title.replacingOccurrences(of: "_", with: " ")
+    }
+
+    private var redirect: String? {
+        ArticleHTML.redirectNote(from: requestedTitle, to: displayTitle, language: language)
+    }
+
+    /// article.css: the data face at a caption's 0.83em of the body.
+    private var redirectFont: Font {
+        let size = theme.bodySize * fontScale * 0.83 * theme.dataScale
+        return theme.faceName(.data).map { .custom($0, size: size) } ?? .system(size: size)
     }
 
     /// article.css body, whose size and leading come from Theme. SwiftUI's lineSpacing is
