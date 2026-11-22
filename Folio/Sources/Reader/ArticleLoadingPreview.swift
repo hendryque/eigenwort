@@ -39,13 +39,13 @@ struct ArticleLoadingPreview: View {
                         ArticleTitle(title: displayTitle, theme: theme, fontScale: fontScale)
                     }
 
-                    // article.css: .folio-redirect takes 8px of the header's 28.
+                    // article.css: .folio-redirect takes 8px of the header's gap.
                     if let redirect {
                         Text(redirect)
                             .font(redirectFont)
                             .foregroundStyle(theme.palette.secondaryColor)
                             .padding(.horizontal, 20)
-                            .padding(.top, 20)
+                            .padding(.top, headerGap - 8)
                     }
 
                     if summary.extract != nil {
@@ -54,8 +54,7 @@ struct ArticleLoadingPreview: View {
                             .foregroundStyle(.primary)
                             .lineSpacing(extractLineSpacing)
                             .padding(.horizontal, 20)
-                            // article.css: .folio-header's 28px bottom margin.
-                            .padding(.top, redirect == nil ? 28 : 16)
+                            .padding(.top, redirect == nil ? headerGap : 16)
                     }
 
                     // Only surfaces on a genuinely slow load. Showing it
@@ -94,6 +93,10 @@ struct ArticleLoadingPreview: View {
     private var displayTitle: String {
         summary.title.replacingOccurrences(of: "_", with: " ")
     }
+
+    /// article.css: .folio-header's 28px under a picture; a title without one
+    /// carries its own, as ArticleTitle.
+    private var headerGap: CGFloat { summary.imageURL(width: ThumbnailWidth.hero) == nil ? 0 : 28 }
 
     private var redirect: String? {
         ArticleHTML.redirectNote(from: requestedTitle, to: displayTitle, language: language)
@@ -225,25 +228,29 @@ struct ArticleTitle: View {
         Group {
             if theme.hasLogoTitles, let band = theme.palette.band {
                 // theme-gimmick.css: the title on a check band, its 64px top
-                // padding clearing the back button.
+                // padding clearing the back button; SwiftUI's taller line
+                // brings its 18px below down to 8.
                 Text(title)
                     .font(titleFont)
                     .tracking(size * theme.titleTracking)
                     .titleInk(theme, size: size)
                     .padding(.horizontal, 20)
-                    .padding(.top, 68)
-                    .padding(.bottom, 14)
+                    .padding(.top, 64)
+                    .padding(.bottom, 8)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(CheckPattern(tones: band))
-                    .padding(.bottom, 4)
+                    // The header's 20px below, less the text's own leading above it.
+                    .padding(.bottom, 22)
             } else {
                 Text(title)
                     .font(titleFont)
                     .tracking(size * theme.titleTracking)
                     .foregroundStyle(.primary)
                     .padding(.horizontal, 20)
-                    // article.css: body's 16px plus the 40px that clears the back button.
-                    .padding(.top, 60)
+                    // article.css sets it 56px down (body's 16px and 40px that
+                    // clear the back button), 20px above the text; SwiftUI's
+                    // taller line takes 6 and 4 of that. Measured, both themes.
+                    .padding(.top, 50)
                     .padding(.bottom, 16)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
