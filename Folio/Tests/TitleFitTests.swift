@@ -18,26 +18,44 @@ struct TitleFitTests {
     @Test("A title that fits keeps the theme's size")
     func shortTitleUnchanged() {
         for theme in Theme.allCases {
-            #expect(TitleFit.size(theme.heroTitleSize, for: "Fabiano Caruana", in: theme, room: column) == theme.heroTitleSize)
+            #expect(TitleFit.size(theme.heroTitleSize, fontScale: 1, for: "Fabiano Caruana", in: theme, room: column) == theme.heroTitleSize)
         }
     }
 
     @Test("Gimmick's slab brings Hinterfirmiansreut down until it fits")
     func wideWordShrinks() {
         let theme = Theme.gimmick
-        let size = TitleFit.size(theme.heroTitleSize, for: "Hinterfirmiansreut", in: theme, room: column)
+        let size = TitleFit.size(theme.heroTitleSize, fontScale: 1, for: "Hinterfirmiansreut", in: theme, room: column)
         let widest = TitleFit.widestPiece(of: "Hinterfirmiansreut", fontName: theme.titleFontName, tracking: theme.titleTracking)
         #expect(size < theme.heroTitleSize)
         #expect(size * widest <= column + 0.01)
     }
 
-    @Test("Past 60% the size holds, and the word is left to hyphenate")
+    private let giant = "Rindfleischetikettierungsüberwachungsaufgabenübertragungsgesetz"
+
+    @Test("Past 60% of the theme's size the size holds, and the word is left to hyphenate")
     func floorHolds() {
-        let title = "Grundstücksverkehrsgenehmigungszuständigkeitsübertragungsverordnung"
         for theme in Theme.allCases {
-            let size = TitleFit.size(theme.heroTitleSize, for: title, in: theme, room: column)
+            let size = TitleFit.size(theme.heroTitleSize, fontScale: 1, for: giant, in: theme, room: column)
             #expect(abs(size - theme.heroTitleSize * TitleFit.floor) < 0.001)
         }
+    }
+
+    @Test("Enlarged text does not raise the floor: the word stays whole")
+    func enlargedKeepsWordWhole() {
+        let theme = Theme.gimmick
+        let title = "Bundesverfassungsgericht"
+        let size = TitleFit.size(theme.heroTitleSize, fontScale: 1.2, for: title, in: theme, room: column)
+        let widest = TitleFit.widestPiece(of: title, fontName: theme.titleFontName, tracking: theme.titleTracking)
+        #expect(size * widest <= column)
+        #expect(size > theme.heroTitleSize * TitleFit.floor)
+    }
+
+    @Test("A title never drops below the text it heads")
+    func neverBelowText() {
+        let theme = Theme.light
+        let size = TitleFit.size(theme.heroTitleSize, fontScale: 1.6, for: giant, in: theme, room: column)
+        #expect(abs(size - theme.bodySize * 1.6) < 0.001)
     }
 
     @Test("Every width on the header is one a theme's stylesheet reads")

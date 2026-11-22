@@ -83,8 +83,6 @@ struct ArticleLoadingPreview: View {
         summary.title.replacingOccurrences(of: "_", with: " ")
     }
 
-    private var heroTitleSize: Double { theme.heroTitleSize * ArticleTitle.scale(fontScale) }
-
     /// article.css body, whose size and leading come from Theme. SwiftUI's lineSpacing is
     /// *extra* points on top of the font's natural leading — subtract it, or
     /// the preview text sits visibly tighter than the rendered article and
@@ -138,7 +136,7 @@ struct ArticleLoadingPreview: View {
                 .frame(height: 220)
                 .allowsHitTesting(false)
 
-                let size = TitleFit.size(heroTitleSize, for: displayTitle, in: theme, room: layout.containerWidth - 40)
+                let size = TitleFit.size(theme.heroTitleSize, fontScale: fontScale, for: displayTitle, in: theme, room: layout.containerWidth - 40)
                 Text(displayTitle)
                     .font(.custom(theme.titleFontName, size: size, relativeTo: .largeTitle))
                     .tracking(size * theme.titleTracking)
@@ -232,7 +230,7 @@ struct ArticleTitle: View {
     }
 
     private var size: Double {
-        TitleFit.size(theme.textOnlyTitleSize * Self.scale(fontScale), for: title, in: theme, room: width - 40)
+        TitleFit.size(theme.textOnlyTitleSize, fontScale: fontScale, for: title, in: theme, room: width - 40)
     }
     private var titleFont: Font { .custom(theme.titleFontName, size: size, relativeTo: .largeTitle) }
 }

@@ -52,10 +52,10 @@ h2 {
 h3 { --folio-fit-size: 1.22em; }
 h4 { --folio-fit-size: 1.08em; }
 /* A single German word can be wider than the column. Display type comes down
-   until its widest word fits, measured by Swift for the title and fit.js for
-   headings; past 60% fit.js lets it hyphenate instead. */
+   until its widest word fits (Swift measures the title, fit.js headings), but
+   never below the text it heads; past its floor fit.js lets it hyphenate. */
 .folio-title, h2, h3, h4 {
-    font-size: max(calc(var(--folio-fit-size) * 0.6),
+    font-size: max(var(--folio-fit-floor, 1em),
                    min(var(--folio-fit-size), calc(var(--folio-room) / var(--folio-fit-em, 0.01))));
 }
 
@@ -99,7 +99,7 @@ a:active { opacity: 0.6; }
 }
 /* Body text needs hyphenation at this measure, German especially, but a
    hyphenated headline reads as a typesetting failure. Only a word too wide
-   even at the 60% floor may break, marked by fit.js. */
+   even at its floor may break, marked by fit.js. */
 h1, h2, h3, h4, h5, h6, .folio-title {
     hyphens: none;
     -webkit-hyphens: none;
@@ -120,6 +120,8 @@ h1, h2, h3, h4, h5, h6, .folio-title {
     font-weight: 400;
     --folio-title-size: 44.2px;
     --folio-fit-size: calc(var(--folio-title-size) * var(--folio-title-scale, 1.0));
+    /* 60% of the theme's size however large the reader sets the text. */
+    --folio-fit-floor: max(calc(var(--folio-title-size) * 0.6), 1em);
     /* Sepia and Dark set the title in Light's face, so they share its width. */
     --folio-fit-em: var(--folio-title-em-light, 0.01);
     line-height: 1.05;

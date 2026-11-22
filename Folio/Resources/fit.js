@@ -1,6 +1,6 @@
 // article.css sizes a heading by its widest word, which only the page can
 // measure in the face the theme gives it. A title or heading still too wide at
-// the 60% floor may hyphenate; nothing else does.
+// its floor may hyphenate; nothing else does.
 (function () {
     var canvas = document.createElement('canvas').getContext('2d');
     var root = document.documentElement;
