@@ -20,6 +20,7 @@ struct BookmarksView: View {
                         NavigationLink(value: ArticleDestination(title: bookmark.title, language: bookmark.language)) {
                             SavedArticleRow(
                                 title: bookmark.title,
+                                language: bookmark.language,
                                 summary: bookmark.summary,
                                 thumbnailURL: bookmark.thumbnailURL
                             )

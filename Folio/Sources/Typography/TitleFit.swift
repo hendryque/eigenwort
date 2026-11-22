@@ -21,9 +21,44 @@ enum TitleFit {
     /// (CSS letter-spacing, in em) after every character as WebKit sets it.
     static func widestPiece(of title: String, fontName: String, tracking: Double) -> Double {
         guard let font = UIFont(name: fontName, size: 100) else { return 0 }
-        return pieces(of: title).map { piece in
-            (piece as NSString).size(withAttributes: [.font: font]).width / 100 + Double(piece.count) * tracking
-        }.max() ?? 0
+        return pieces(of: title).map { width(of: $0, font: font) / 100 + Double($0.count) * tracking }.max() ?? 0
+    }
+
+    static func width(of piece: String, font: UIFont) -> Double {
+        (piece as NSString).size(withAttributes: [.font: font]).width
+    }
+
+    /// For text that cannot shrink, a list row's title: only a piece wider than
+    /// `room` gets soft hyphens, so it breaks at a syllable instead of any
+    /// letter, and every word that fits a line still never breaks.
+    static func hyphenatingTooWide(_ title: String, font: UIFont, room: Double, language: String) -> String {
+        guard room > 0 else { return title }
+        return title.split(separator: " ", omittingEmptySubsequences: false).map { word in
+            pieces(of: String(word)).map { piece in
+                // A point under the room, or SwiftUI breaks it at a letter first.
+                width(of: piece, font: font) > room - 1 ? softHyphens(in: piece, language: language) : piece
+            }.joined()
+        }.joined(separator: " ")
+    }
+
+    /// The word with a soft hyphen wherever the system's dictionary for
+    /// `language` allows a break, the dictionaries WebKit hyphenates with.
+    static func softHyphens(in word: String, language: String) -> String {
+        let locale = Locale(identifier: language) as CFLocale
+        guard CFStringIsHyphenationAvailableForLocale(locale) else { return word }
+        let text = word as NSString
+        let whole = CFRange(location: 0, length: text.length)
+        var breaks: [Int] = []
+        var before = text.length
+        while true {
+            let at = CFStringGetHyphenationLocationBeforeIndex(word as CFString, before, whole, 0, locale, nil)
+            guard at != kCFNotFound, at > 0, at < before else { break }
+            breaks.append(at)
+            before = at
+        }
+        let hyphenated = NSMutableString(string: word)
+        for at in breaks { hyphenated.insert("\u{00AD}", at: at) }
+        return hyphenated as String
     }
 
     /// The title cut where WebKit and Core Text may break it: at spaces, and

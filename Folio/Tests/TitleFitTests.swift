@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import UIKit
 @testable import Folio
 
 /// The title sizes that once clipped: a German word wider than the column.
@@ -56,6 +57,18 @@ struct TitleFitTests {
         let theme = Theme.light
         let size = TitleFit.size(theme.heroTitleSize, fontScale: 1.6, for: giant, in: theme, room: column)
         #expect(abs(size - theme.bodySize * 1.6) < 0.001)
+    }
+
+    @Test("In a list row only a word too wide for it gets soft hyphens")
+    func rowHyphenation() throws {
+        let font = try #require(UIFont(name: "EBGaramond-Bold", size: 19))
+        let row = 280.0
+        #expect(TitleFit.hyphenatingTooWide("Fabiano Caruana", font: font, room: row, language: "de") == "Fabiano Caruana")
+        let title = "Das \(giant)"
+        let set = TitleFit.hyphenatingTooWide(title, font: font, room: row, language: "de")
+        #expect(set.hasPrefix("Das "))
+        #expect(set.contains("\u{00AD}"))
+        #expect(set.replacingOccurrences(of: "\u{00AD}", with: "") == title)
     }
 
     @Test("Every width on the header is one a theme's stylesheet reads")

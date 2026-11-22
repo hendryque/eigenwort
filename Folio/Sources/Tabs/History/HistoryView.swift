@@ -117,11 +117,12 @@ private struct ArticleRowLabel: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Text(entry.title.replacingOccurrences(of: "_", with: " "))
-                .font(theme.font(.text, .bold, size: 19, relativeTo: .body))
+            // The title fills the row up to the badge, as the spacer did, and
+            // keeps the spacer's 8pt beside the stack's spacing.
+            RowTitle(title: entry.title, language: entry.language, weight: .bold, size: 19)
                 .foregroundStyle(theme.palette.accentColor)
                 .lineLimit(2)
-            Spacer(minLength: 8)
+                .padding(.trailing, 20)
             LanguageBadge(language: entry.language)
         }
         .padding(.vertical, 4)

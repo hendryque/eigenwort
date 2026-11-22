@@ -336,7 +336,7 @@ private struct SearchResultsList: View {
                     persistSearchQuery()
                     onSelect(result)
                 } label: {
-                    SearchResultRow(result: result)
+                    SearchResultRow(result: result, language: language)
                 }
                 .buttonStyle(.plain)
                 .listRowSeparatorTint(theme.palette.listRuleColor)
@@ -425,14 +425,14 @@ private struct SearchResultsList: View {
 private struct SearchResultRow: View {
     @Environment(\.folioTheme) private var theme
     let result: SearchResult
+    let language: String
 
     var body: some View {
         HStack(spacing: 12) {
             RowThumbnail(url: result.thumbnailURL, side: 48)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(result.title.replacingOccurrences(of: "_", with: " "))
-                    .font(theme.font(.text, size: 17, relativeTo: .body))
+                RowTitle(title: result.title, language: language, size: 17)
                     .foregroundStyle(.primary)
                 if !result.summary.isEmpty {
                     Text(result.summary)

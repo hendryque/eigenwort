@@ -3,6 +3,7 @@ import SwiftUI
 struct SavedArticleRow: View {
     @Environment(\.folioTheme) private var theme
     let title: String
+    let language: String
     let summary: String?
     let thumbnailURL: URL?
 
@@ -11,8 +12,7 @@ struct SavedArticleRow: View {
             RowThumbnail(url: thumbnailURL?.wikimediaResized(to: ThumbnailWidth.row), side: 56)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(title.replacingOccurrences(of: "_", with: " "))
-                    .font(theme.font(.text, size: 17, relativeTo: .body))
+                RowTitle(title: title, language: language, size: 17)
                     .foregroundStyle(.primary)
                     .lineLimit(2)
                 if let summary, !summary.isEmpty {
@@ -24,6 +24,27 @@ struct SavedArticleRow: View {
             }
         }
         .padding(.vertical, 4)
+    }
+}
+
+/// An article's title in a list row, in the text face. SwiftUI breaks a word
+/// too wide for the row at any letter; only such a word hyphenates instead.
+struct RowTitle: View {
+    @Environment(\.folioTheme) private var theme
+    let title: String
+    let language: String
+    var weight: TypeWeight = .regular
+    let size: Double
+
+    /// The row's width, not the text's, which hyphens would feed back into.
+    @State private var room: CGFloat = 0
+
+    var body: some View {
+        let font = theme.uiFont(.text, weight, size: size, relativeTo: .body)
+        Text(TitleFit.hyphenatingTooWide(title.replacingOccurrences(of: "_", with: " "), font: font, room: room, language: language))
+            .font(theme.font(.text, weight, size: size, relativeTo: .body))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { room = $0 }
     }
 }
 

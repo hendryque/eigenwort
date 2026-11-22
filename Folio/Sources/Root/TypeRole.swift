@@ -44,6 +44,16 @@ extension Theme {
         return .custom(name, size: size * scale(role), relativeTo: style)
     }
 
+    /// The UIFont that `font(_:_:size:relativeTo:)` sets, Dynamic Type and all,
+    /// for measuring a line before SwiftUI lays it out.
+    func uiFont(_ role: TypeRole, _ weight: TypeWeight = .regular, size: Double, relativeTo style: Font.TextStyle) -> UIFont {
+        let metrics = UIFontMetrics(forTextStyle: style.uiTextStyle)
+        guard let name = faceName(role, weight), let face = UIFont(name: name, size: size * scale(role)) else {
+            return metrics.scaledFont(for: .systemFont(ofSize: size))
+        }
+        return metrics.scaledFont(for: face)
+    }
+
     /// The data face at a text style's size: San Francisco itself where the
     /// theme keeps it, so those themes look exactly as they did.
     func dataFont(_ style: Font.TextStyle, _ weight: TypeWeight = .regular) -> Font {
