@@ -97,10 +97,11 @@ struct ArticleLoadingPreview: View {
         summary.title.replacingOccurrences(of: "_", with: " ")
     }
 
-    /// article.css: .folio-header's 28px under a picture, and 2 more measured
-    /// for the leading SwiftUI sets above the text; a title without a picture
-    /// carries its own, as ArticleTitle.
-    private var headerGap: CGFloat { summary.imageURL(width: ThumbnailWidth.hero) == nil ? 0 : 30 }
+    /// article.css: .folio-header's 28px under a picture, and the text's lead
+    /// (Theme); a title without a picture carries its own, as ArticleTitle.
+    private var headerGap: CGFloat {
+        summary.imageURL(width: ThumbnailWidth.hero) == nil ? 0 : 28 + theme.textLead
+    }
 
     private var redirect: String? {
         ArticleHTML.redirectNote(from: requestedTitle, to: displayTitle, language: language)
@@ -170,9 +171,10 @@ struct ArticleLoadingPreview: View {
                 Text(displayTitle)
                     .font(.custom(theme.titleFontName, fixedSize: size))
                     .tracking(size * theme.titleTracking)
+                    .titleLines(theme, size: size)
                     .titleInk(theme, size: size)
                     .padding(.horizontal, 20)
-                    .padding(.bottom, 20)
+                    .padding(.bottom, 20 + (ArticleTitle.inkDrop(theme, size: size) ?? 0))
             }
         }
         .aspectRatio(4 / 3, contentMode: .fit)
@@ -226,6 +228,13 @@ struct ArticleTitle: View {
     /// keeps the full range. Matches article.css.
     static func scale(_ fontScale: Double) -> Double { min(max(fontScale, 0.85), 1.2) }
 
+    /// From iOS 26 the title's lines stand as in article.css and only its ink
+    /// sits lower; the paddings give that back. Before, they stand at the
+    /// face's own height, and the paddings were measured for one line.
+    static func inkDrop(_ theme: Theme, size: Double) -> Double? {
+        if #available(iOS 26, *) { size * theme.titleInkDrop } else { nil }
+    }
+
     /// The width the title stands in; its size depends on it, as in article.css.
     @State private var width: CGFloat = 0
 
@@ -238,25 +247,27 @@ struct ArticleTitle: View {
                 Text(title)
                     .font(titleFont)
                     .tracking(size * theme.titleTracking)
+                    .titleLines(theme, size: size)
                     .titleInk(theme, size: size)
                     .padding(.horizontal, 20)
-                    .padding(.top, 64)
-                    .padding(.bottom, 8)
+                    .padding(.top, drop.map { 64 - $0 } ?? 64)
+                    .padding(.bottom, drop.map { 18 + $0 } ?? 8)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(CheckPattern(tones: band))
-                    // The header's 20px below, less the text's own leading above it.
-                    .padding(.bottom, 22)
+                    // The header's 20px below, and the text's lead (Theme).
+                    .padding(.bottom, 20 + theme.textLead)
             } else {
                 Text(title)
                     .font(titleFont)
                     .tracking(size * theme.titleTracking)
+                    .titleLines(theme, size: size)
                     .foregroundStyle(.primary)
                     .padding(.horizontal, 20)
                     // article.css sets it 56px down (body's 16px and 40px that
                     // clear the back button), 20px above the text; SwiftUI's
                     // taller line takes 6 and 4 of that. Measured, both themes.
-                    .padding(.top, 50)
-                    .padding(.bottom, 16)
+                    .padding(.top, drop.map { 56 - $0 } ?? 50)
+                    .padding(.bottom, drop.map { 20 + $0 + theme.textLead } ?? 16)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
@@ -267,20 +278,38 @@ struct ArticleTitle: View {
         TitleFit.size(theme.textOnlyTitleSize, fontScale: fontScale, for: title, in: theme, room: width - 40)
     }
     private var titleFont: Font { .custom(theme.titleFontName, fixedSize: size) }
+    private var drop: Double? { Self.inkDrop(theme, size: size) }
 }
 
 extension View {
+    /// A title's lines as close as the theme's CSS sets them, which WebKit
+    /// rounds down to whole pixels. SwiftUI can from iOS 26; before, they
+    /// stand at the face's own height.
+    @ViewBuilder
+    func titleLines(_ theme: Theme, size: Double) -> some View {
+        if #available(iOS 26, *) {
+            lineHeight(.exact(points: (size * theme.titleLineHeight).rounded(.down)))
+        } else {
+            self
+        }
+    }
+
     /// Display titles over a picture or a band, inked as the theme's CSS inks
     /// them: white with a soft shadow, or Gimmick's yellow with a hard blue one.
     func titleInk(_ theme: Theme, size: Double) -> some View {
         let logo = theme.hasLogoTitles
+        // A hard shadow is drawn only within the title's frame, which stops
+        // above descenders once titleLines sets the lines as close as CSS.
+        let room = size * 0.4
         return foregroundStyle(logo ? theme.palette.cardColor : .white)
+            .padding(.bottom, room)
             .shadow(
                 color: logo ? Color(rgb: theme.palette.link) : .black.opacity(0.45),
                 radius: logo ? 0 : 12,
                 x: logo ? size * 0.06 : 0,
                 y: logo ? size * 0.06 : 1
             )
+            .padding(.bottom, -room)
     }
 }
 

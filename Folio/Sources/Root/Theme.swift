@@ -190,6 +190,25 @@ enum Theme: String, CaseIterable, Identifiable, Sendable {
     }
     /// The title is an h1: article.css tracks it -0.01em, Gimmick's slab +0.005em.
     var titleTracking: Double { self == .gimmick ? 0.005 : -0.01 }
+    /// And sets its lines 1.05em apart, De:Bug's 1.04 and Gimmick's 1.08.
+    var titleLineHeight: Double {
+        switch self {
+        case .debug: 1.04
+        case .gimmick: 1.08
+        default: 1.05
+        }
+    }
+    /// SwiftUI sets those lines as far apart from iOS 26, but the ink lower in
+    /// each than WebKit does, by this much of the size. Measured.
+    var titleInkDrop: Double {
+        switch self {
+        case .debug: 0.096
+        case .gimmick: 0.11
+        default: 0.145
+        }
+    }
+    /// And starts the text under a title this much higher than WebKit. Measured.
+    var textLead: Double { self == .debug ? 0 : 2 }
 }
 
 enum TodayLook: Sendable {
