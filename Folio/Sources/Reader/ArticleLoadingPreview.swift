@@ -50,7 +50,10 @@ struct ArticleLoadingPreview: View {
 
                     if summary.extract != nil {
                         Text(styledExtract)
-                            .font(.custom(theme.bodyFontName, size: theme.bodySize * fontScale, relativeTo: .body))
+                            // Fixed sizes throughout: the article takes only the reader's
+                            // own text size, so a preview that also followed the system's
+                            // came up smaller or larger and jumped on the cross-fade.
+                            .font(.custom(theme.bodyFontName, fixedSize: theme.bodySize * fontScale))
                             .foregroundStyle(.primary)
                             .lineSpacing(extractLineSpacing)
                             .padding(.horizontal, 20)
@@ -94,9 +97,10 @@ struct ArticleLoadingPreview: View {
         summary.title.replacingOccurrences(of: "_", with: " ")
     }
 
-    /// article.css: .folio-header's 28px under a picture; a title without one
+    /// article.css: .folio-header's 28px under a picture, and 2 more measured
+    /// for the leading SwiftUI sets above the text; a title without a picture
     /// carries its own, as ArticleTitle.
-    private var headerGap: CGFloat { summary.imageURL(width: ThumbnailWidth.hero) == nil ? 0 : 28 }
+    private var headerGap: CGFloat { summary.imageURL(width: ThumbnailWidth.hero) == nil ? 0 : 30 }
 
     private var redirect: String? {
         ArticleHTML.redirectNote(from: requestedTitle, to: displayTitle, language: language)
@@ -106,7 +110,7 @@ struct ArticleLoadingPreview: View {
     /// which follows the reader's size only to 120%.
     private var redirectFont: Font {
         let size = theme.bodySize * min(fontScale, 1.2) * 0.72 * theme.dataScale
-        return theme.faceName(.data).map { .custom($0, size: size) } ?? .system(size: size)
+        return theme.faceName(.data).map { .custom($0, fixedSize: size) } ?? .system(size: size)
     }
 
     /// article.css body, whose size and leading come from Theme. SwiftUI's lineSpacing is
@@ -126,7 +130,7 @@ struct ArticleLoadingPreview: View {
         var attributed = AttributedString(summary.extract ?? "")
         guard let lead = summary.leadBoldPhrase,
               let range = attributed.range(of: lead) else { return attributed }
-        attributed[range].font = .custom(theme.bodyBoldFontName, size: theme.bodySize * fontScale, relativeTo: .body)
+        attributed[range].font = .custom(theme.bodyBoldFontName, fixedSize: theme.bodySize * fontScale)
         return attributed
     }
 
@@ -164,7 +168,7 @@ struct ArticleLoadingPreview: View {
 
                 let size = TitleFit.size(theme.heroTitleSize, fontScale: fontScale, for: displayTitle, in: theme, room: layout.containerWidth - 40)
                 Text(displayTitle)
-                    .font(.custom(theme.titleFontName, size: size, relativeTo: .largeTitle))
+                    .font(.custom(theme.titleFontName, fixedSize: size))
                     .tracking(size * theme.titleTracking)
                     .titleInk(theme, size: size)
                     .padding(.horizontal, 20)
@@ -262,7 +266,7 @@ struct ArticleTitle: View {
     private var size: Double {
         TitleFit.size(theme.textOnlyTitleSize, fontScale: fontScale, for: title, in: theme, room: width - 40)
     }
-    private var titleFont: Font { .custom(theme.titleFontName, size: size, relativeTo: .largeTitle) }
+    private var titleFont: Font { .custom(theme.titleFontName, fixedSize: size) }
 }
 
 extension View {
