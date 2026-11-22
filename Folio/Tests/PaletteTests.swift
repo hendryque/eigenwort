@@ -54,6 +54,7 @@ struct PaletteTests {
                 rawHTML: "<html><body><p>Prose.</p></body></html>",
                 theme: theme,
                 fontScale: 1.0,
+                systemScale: 1.0,
                 language: "de",
                 title: "Bauhaus",
                 articleURL: URL(string: "https://de.wikipedia.org/wiki/Bauhaus")!,

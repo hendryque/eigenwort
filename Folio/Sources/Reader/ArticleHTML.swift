@@ -19,6 +19,7 @@ enum ArticleHTML {
         rawHTML: String,
         theme: Theme,
         fontScale: Double,
+        systemScale: Double,
         language: String,
         title: String,
         articleURL: URL,
@@ -59,7 +60,7 @@ enum ArticleHTML {
 
         let rendered = """
         <!DOCTYPE html>
-        <html lang="\(htmlEscape(language))" data-font-queries="\(htmlEscape(fontQueriesJSON))" style="\(htmlEscape(rootStyle(theme: theme, fontScale: fontScale)))">
+        <html lang="\(htmlEscape(language))" data-font-queries="\(htmlEscape(fontQueriesJSON))" style="\(htmlEscape(rootStyle(theme: theme, fontScale: fontScale, systemScale: systemScale)))">
         <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -176,15 +177,15 @@ enum ArticleHTML {
     }
 
     /// Everything the stylesheet reads from the root: the theme's metrics and
-    /// palette, and the reader's scales. A live theme switch sets this same
-    /// string, so a switched article cannot keep the colours it opened with.
-    static func rootStyle(theme: Theme, fontScale: Double) -> String {
+    /// palette, the reader's scales and the iPhone's share of them (pinch.js).
+    /// A live theme switch sets this same string, so no colours stay behind.
+    static func rootStyle(theme: Theme, fontScale: Double, systemScale: Double) -> String {
         String(
             format: "--folio-body-size: %.1fpx; --folio-body-leading: %.3f; --folio-measure: %.0frem; --folio-data-scale: %.3f; ",
             theme.bodySize, theme.bodyLineHeight, theme.measureRem, theme.dataScale
         ) + theme.palette.cssVariables + String(
-            format: " --folio-font-scale: %.3f; --folio-title-scale: %.3f;",
-            fontScale, ArticleTitle.scale(fontScale)
+            format: " --folio-font-scale: %.3f; --folio-title-scale: %.3f; --folio-system-scale: %.3f;",
+            fontScale, ArticleTitle.scale(fontScale), systemScale
         )
     }
 

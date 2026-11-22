@@ -27,6 +27,8 @@ struct ArticleWebView: UIViewRepresentable {
     let heroFocalPoint: CGPoint?
     let theme: Theme
     let fontScale: Double
+    /// The iPhone's share of `fontScale`, which a pinch leaves alone.
+    let systemScale: Double
     /// The reader's safe area, the app's header included: the page runs
     /// beneath the header and starts below it.
     let contentInsets: EdgeInsets
@@ -149,7 +151,7 @@ struct ArticleWebView: UIViewRepresentable {
 
         // Theme and text size reach a loaded page by script, and only when they
         // change: re-setting the root style restyled the whole document.
-        let rootStyle = ArticleHTML.rootStyle(theme: theme, fontScale: fontScale)
+        let rootStyle = ArticleHTML.rootStyle(theme: theme, fontScale: fontScale, systemScale: systemScale)
         let look = theme.cssDataTheme + rootStyle
 
         if context.coordinator.lastHash != stableHash {
@@ -160,6 +162,7 @@ struct ArticleWebView: UIViewRepresentable {
                 rawHTML: html,
                 theme: theme,
                 fontScale: fontScale,
+                systemScale: systemScale,
                 language: language,
                 title: currentTitle,
                 articleURL: articleURL,

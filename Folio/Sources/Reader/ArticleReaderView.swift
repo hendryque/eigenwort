@@ -3,6 +3,7 @@ import SwiftData
 
 struct ArticleReaderView: View {
     @Environment(\.folioTheme) private var theme
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     let title: String
     let language: String
     /// Where "Search for it" goes when Wikipedia has no article by this title.
@@ -185,6 +186,7 @@ struct ArticleReaderView: View {
                     heroFocalPoint: heroFocalPoint,
                     theme: theme,
                     fontScale: fontScale,
+                    systemScale: dynamicTypeSize.bodyScale,
                     contentInsets: safeInsets,
                     initialScrollY: initialScrollY,
                     related: related,
@@ -268,8 +270,9 @@ struct ArticleReaderView: View {
     private var savedNames: ArticleNames { ArticleNames(requested: title, resolved: displayTitle) }
 
     private var settings: AppSettings? { settingsList.first }
-    /// Resolved once by ContentView, so Auto never reaches the stylesheet.
-    private var fontScale: Double { settings?.fontScale ?? 1.0 }
+    /// The reader's own text size on top of the iPhone's: the article, its
+    /// preview and its title follow both. Settings and pinching keep the first.
+    private var fontScale: Double { (settings?.fontScale ?? 1.0) * dynamicTypeSize.bodyScale }
 
     private var articleURL: URL {
         WikipediaEndpoint.articleURL(title: title, language: language)

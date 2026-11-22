@@ -20,6 +20,7 @@ struct RedirectTests {
             rawHTML: page,
             theme: .light,
             fontScale: 1.0,
+            systemScale: 1.0,
             language: "de",
             title: "Königsläuferspiel",
             articleURL: URL(string: "https://de.wikipedia.org/wiki/K%C3%B6nigsl%C3%A4uferspiel")!,

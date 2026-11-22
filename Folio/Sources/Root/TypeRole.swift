@@ -96,3 +96,13 @@ private extension Font.TextStyle {
         }
     }
 }
+
+extension DynamicTypeSize {
+    /// How far the iPhone's text size moves body text in a face of our own, as
+    /// it moves the lists' and Today's: 0.9 at Small, 2.8 at the largest. The
+    /// reader takes it on top of its own.
+    var bodyScale: Double {
+        let traits = UITraitCollection(preferredContentSizeCategory: UIContentSizeCategory(self))
+        return UIFontMetrics(forTextStyle: .body).scaledValue(for: 17, compatibleWith: traits) / 17
+    }
+}

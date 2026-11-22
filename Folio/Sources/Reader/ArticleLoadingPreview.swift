@@ -50,8 +50,8 @@ struct ArticleLoadingPreview: View {
 
                     if summary.extract != nil {
                         Text(styledExtract)
-                            // Fixed sizes throughout: the article takes only the reader's
-                            // own text size, so a preview that also followed the system's
+                            // Fixed sizes throughout: fontScale already carries the iPhone's
+                            // text size, as the article's does. Scaled again, the preview
                             // came up smaller or larger and jumped on the cross-fade.
                             .font(.custom(theme.bodyFontName, fixedSize: theme.bodySize * fontScale))
                             .foregroundStyle(.primary)

@@ -2,20 +2,28 @@
     const MIN = 0.85, MAX = 1.6, TITLE_MAX = 1.2;
     const root = document.documentElement;
 
-    function readScale() {
-        const v = parseFloat(getComputedStyle(root).getPropertyValue('--folio-font-scale'));
+    // The page is set at the reader's own size times the iPhone's. A pinch
+    // changes, clamps and reports the reader's own only.
+    function rootScale(name) {
+        const v = parseFloat(getComputedStyle(root).getPropertyValue(name));
         return Number.isFinite(v) && v > 0 ? v : 1.0;
+    }
+    function readScale() {
+        return rootScale('--folio-font-scale') / system;
     }
     function setScale(v) {
         const clamped = Math.max(MIN, Math.min(MAX, v));
-        root.style.setProperty('--folio-font-scale', clamped.toFixed(3));
-        root.style.setProperty('--folio-title-scale', Math.min(TITLE_MAX, clamped).toFixed(3));
+        const text = clamped * system;
+        root.style.setProperty('--folio-font-scale', text.toFixed(3));
+        // As ArticleTitle.scale: titles follow the text from 85% to 120%.
+        root.style.setProperty('--folio-title-scale', Math.max(MIN, Math.min(TITLE_MAX, text)).toFixed(3));
         return clamped;
     }
 
     let pinching = false;
     let startDist = 0;
-    let startScale = readScale();
+    let system = 1.0;
+    let startScale = 1.0;
 
     function distance(a, b) {
         const dx = a.clientX - b.clientX;
@@ -27,6 +35,7 @@
         if (e.touches.length === 2) {
             pinching = true;
             startDist = distance(e.touches[0], e.touches[1]);
+            system = rootScale('--folio-system-scale');
             startScale = readScale();
         }
     }, { passive: true });

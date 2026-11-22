@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 import Testing
 @testable import Folio
 
@@ -12,6 +13,7 @@ struct ReaderDocumentTests {
             rawHTML: "<html><body><p>Ordinary prose, 1919 and all that.</p></body></html>",
             theme: theme,
             fontScale: 1.0,
+            systemScale: 1.0,
             language: language,
             title: "Bauhaus",
             articleURL: URL(string: "https://en.wikipedia.org/wiki/Bauhaus")!,
@@ -103,11 +105,26 @@ struct ReaderDocumentTests {
     @Test("A live theme switch sets the same root style the document opens with")
     func liveSwitchCarriesPaletteAndMetrics() {
         for theme in Theme.allCases.map({ $0.resolved(for: .dark) }) {
-            let style = ArticleHTML.rootStyle(theme: theme, fontScale: 1.0)
+            let style = ArticleHTML.rootStyle(theme: theme, fontScale: 1.0, systemScale: 1.0)
             #expect(style.contains(theme.palette.cssVariables))
             #expect(style.contains(String(format: "--folio-body-size: %.1fpx", theme.bodySize)))
             #expect(render(theme: theme).html.contains(style))
         }
+    }
+
+    /// The article once took only the reader's own size, so with the iPhone
+    /// set to Small its preview, which followed both, shrank on the cross-fade.
+    @Test("The reader's text follows the iPhone's text size on top of its own")
+    func systemTextSize() {
+        let scales = DynamicTypeSize.allCases.map(\.bodyScale)
+        #expect(scales == scales.sorted() && Set(scales).count == scales.count)
+        #expect(DynamicTypeSize.large.bodyScale == 1)
+        #expect(DynamicTypeSize.small.bodyScale < 0.95)
+        #expect(DynamicTypeSize.accessibility5.bodyScale > 2.5)
+        let style = ArticleHTML.rootStyle(theme: .light, fontScale: 1.2 * 0.9, systemScale: 0.9)
+        #expect(style.contains("--folio-font-scale: 1.080;"))
+        #expect(style.contains("--folio-title-scale: 1.080;"))
+        #expect(style.contains("--folio-system-scale: 0.900;"))
     }
 
     @Test("The colophon escapes the URLs it embeds")
