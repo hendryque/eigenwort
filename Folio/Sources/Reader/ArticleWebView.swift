@@ -16,6 +16,10 @@ struct ReaderScroll: Sendable {
 
 struct ArticleWebView: UIViewRepresentable {
     let html: String
+    /// Raised by the reader when different HTML arrives. Compared instead of
+    /// the text: hashing a long article on every update held the main thread
+    /// for the whole of a scroll.
+    let revision: Int
     let articleURL: URL
     let language: String
     let currentTitle: String
@@ -132,7 +136,7 @@ struct ArticleWebView: UIViewRepresentable {
         // Stable hash deliberately excludes theme and fontScale so swapping themes
         // or pinching font size never reloads the document — both are applied via JS.
         var hasher = Hasher()
-        hasher.combine(html)
+        hasher.combine(revision)
         hasher.combine(language)
         hasher.combine(currentTitle)
         hasher.combine(articleURL.absoluteString)
@@ -143,8 +147,14 @@ struct ArticleWebView: UIViewRepresentable {
         }
         let stableHash = hasher.finalize()
 
+        // Theme and text size reach a loaded page by script, and only when they
+        // change: re-setting the root style restyled the whole document.
+        let rootStyle = ArticleHTML.rootStyle(theme: theme, fontScale: fontScale)
+        let look = theme.cssDataTheme + rootStyle
+
         if context.coordinator.lastHash != stableHash {
             context.coordinator.lastHash = stableHash
+            context.coordinator.appliedLook = look
             context.coordinator.hasPainted = false
             let document = ArticleHTML.render(
                 rawHTML: html,
@@ -157,11 +167,12 @@ struct ArticleWebView: UIViewRepresentable {
                 heroFocalPoint: heroFocalPoint
             )
             webView.loadHTMLString(document.html, baseURL: document.baseURL)
-        } else {
+        } else if context.coordinator.appliedLook != look {
+            context.coordinator.appliedLook = look
             // Same document — preload the target theme's faces before flipping
             // the attribute, so a live theme change cannot expose fallback type.
             let queriesJSON = Self.javaScriptJSON(theme.webFontQueries)
-            let styleJSON = Self.javaScriptJSON(ArticleHTML.rootStyle(theme: theme, fontScale: fontScale))
+            let styleJSON = Self.javaScriptJSON(rootStyle)
             let js = """
             (function () {
                 const request = (window.__folioThemeRequest || 0) + 1;
@@ -228,6 +239,7 @@ struct ArticleWebView: UIViewRepresentable {
         var onReload: () -> Void
 
         var lastHash: Int = 0
+        var appliedLook = ""
         var hasPainted = false
         weak var webView: WKWebView?
 

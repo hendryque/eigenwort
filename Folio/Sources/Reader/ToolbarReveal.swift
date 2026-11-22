@@ -1,5 +1,11 @@
 import Foundation
 
+/// Keeps a ToolbarReveal where SwiftUI does not watch it. Scroll reports come
+/// every frame; only the bar showing or hiding should touch the reader.
+final class ToolbarRevealTracker {
+    var state = ToolbarReveal()
+}
+
 /// Decides whether the reader's bar shows. It hides while you read down and
 /// returns when you scroll up on purpose or reach either end of the article.
 /// A pause changes nothing, since a pause is when you are reading.

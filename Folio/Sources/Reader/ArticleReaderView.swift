@@ -18,6 +18,8 @@ struct ArticleReaderView: View {
     @State private var html: String?
     /// What a redirect resolved to, read from the HTML as it arrives.
     @State private var resolvedTitle: String?
+    /// Counts the documents shown, so the web view need not compare the text.
+    @State private var htmlRevision = 0
     @State private var loadFailure: LoadFailure?
     @State private var historyRecorded = false
 
@@ -37,7 +39,8 @@ struct ArticleReaderView: View {
     @State private var webViewReady: Bool = false
     @State private var reloadToken = UUID()
     @State private var initialScrollY: Double = 0
-    @State private var toolbarReveal = ToolbarReveal()
+    @State private var reveal = ToolbarRevealTracker()
+    @State private var barVisible = true
     @State private var safeInsets = EdgeInsets()
     @State private var refreshTask: Task<Void, Never>?
     @State private var activeSectionAnchor: String?
@@ -65,10 +68,10 @@ struct ArticleReaderView: View {
                     onShowGallery: { showGallery = true },
                     onShowTOC: { showTOC = true }
                 )
-                .opacity(toolbarReveal.isVisible ? 1 : 0)
-                .offset(y: toolbarReveal.isVisible ? 0 : 90)
-                .allowsHitTesting(toolbarReveal.isVisible)
-                .animation(.easeOut(duration: 0.22), value: toolbarReveal.isVisible)
+                .opacity(barVisible ? 1 : 0)
+                .offset(y: barVisible ? 0 : 90)
+                .allowsHitTesting(barVisible)
+                .animation(.easeOut(duration: 0.22), value: barVisible)
                 .transition(.opacity)
             }
         }
@@ -84,8 +87,8 @@ struct ArticleReaderView: View {
         }
         .clearsHeader()
         // The app's header goes and comes back on the bar's rule.
-        .onChange(of: toolbarReveal.isVisible) { _, isVisible in chrome?.isHeaderHidden = !isVisible }
-        .onAppear { chrome?.isHeaderHidden = !toolbarReveal.isVisible }
+        .onChange(of: barVisible) { _, isVisible in chrome?.isHeaderHidden = !isVisible }
+        .onAppear { chrome?.isHeaderHidden = !barVisible }
         // Keep the nav bar present-but-invisible so UIKit's interactive pop
         // (swipe-from-leading-edge) still works. `.toolbar(.hidden)` removes the bar
         // entirely and disables the gesture.
@@ -174,6 +177,7 @@ struct ArticleReaderView: View {
             if let html, visionComplete {
                 ArticleWebView(
                     html: html,
+                    revision: htmlRevision,
                     articleURL: articleURL,
                     language: language,
                     currentTitle: title,
@@ -332,7 +336,8 @@ struct ArticleReaderView: View {
         webViewReady = false
         galleryItems = []
         initialScrollY = 0
-        toolbarReveal = ToolbarReveal()
+        reveal.state = ToolbarReveal()
+        barVisible = true
         #if DEBUG
         // Deterministic scroll for automated screenshots, e.g.
         // `-screenshotScrollY 1800`. Never set in a release build.
@@ -407,7 +412,8 @@ struct ArticleReaderView: View {
     }
 
     private func handleScroll(_ scroll: ReaderScroll) {
-        toolbarReveal.update(y: scroll.y, remaining: scroll.remaining)
+        reveal.state.update(y: scroll.y, remaining: scroll.remaining)
+        if reveal.state.isVisible != barVisible { barVisible = reveal.state.isVisible }
     }
 
     /// Called when WKWebView's content process is terminated by iOS. Dropping
@@ -452,7 +458,9 @@ struct ArticleReaderView: View {
     /// Together, so history, which is written once the HTML is in, already
     /// has the name a redirect resolved to.
     private func show(_ article: String) {
+        guard article != html else { return }
         html = article
+        htmlRevision += 1
         resolvedTitle = ArticleHTML.resolvedTitle(in: article)
     }
 
