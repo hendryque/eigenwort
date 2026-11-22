@@ -164,6 +164,16 @@ enum Theme: String, CaseIterable, Identifiable, Sendable {
     /// offset shadow in the rim's blue, rather than white over the scrim.
     var hasLogoTitles: Bool { self == .gimmick }
 
+    /// How Today is set: V for Wikipedia's grid of pictures, or a costume's own
+    /// page, Gimmick's in pop art and De:Bug's as a contents page on newsprint.
+    var todayLook: TodayLook {
+        switch self {
+        case .gimmick: .popArt
+        case .debug: .contents
+        default: .grid
+        }
+    }
+
     var heroTitleSize: Double {
         switch self {
         case .debug: 42
@@ -180,6 +190,10 @@ enum Theme: String, CaseIterable, Identifiable, Sendable {
     }
     /// The title is an h1: article.css tracks it -0.01em, Gimmick's slab +0.005em.
     var titleTracking: Double { self == .gimmick ? 0.005 : -0.01 }
+}
+
+enum TodayLook: Sendable {
+    case grid, popArt, contents
 }
 
 private struct FolioThemeKey: EnvironmentKey {

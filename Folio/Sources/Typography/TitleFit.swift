@@ -7,14 +7,20 @@ enum TitleFit {
     /// Of the theme's own size, not the enlarged one, and never below the text.
     static let floor = 0.6
 
-    /// A theme title size (`themeSize`, as at 100%) for `room` points of
-    /// column. At an exact fit SwiftUI wraps the last letter: a point of slack.
+    /// A theme title size (`themeSize`, as at 100%) for `room` points of column.
     static func size(_ themeSize: Double, fontScale: Double, for title: String, in theme: Theme, room: Double) -> Double {
         let nominal = themeSize * ArticleTitle.scale(fontScale)
         let widest = widestPiece(of: title, fontName: theme.titleFontName, tracking: theme.titleTracking)
-        guard widest > 0, room > 1 else { return nominal }
         let lowest = max(themeSize * floor, theme.bodySize * fontScale)
-        return max(lowest, min(nominal, (room - 1) / widest))
+        return nominal * share(widest: widest * nominal, room: room, floor: lowest / nominal)
+    }
+
+    /// The share of its size a title keeps so its widest piece, `widest`
+    /// points at full size, fits `room`, but never below `floor`. At an exact
+    /// fit SwiftUI wraps the last letter, so a point of slack.
+    static func share(widest: Double, room: Double, floor: Double) -> Double {
+        guard widest > 0, room > 1 else { return 1 }
+        return max(floor, min(1, (room - 1) / widest))
     }
 
     /// The widest piece a line cannot break, in em of the face, with `tracking`

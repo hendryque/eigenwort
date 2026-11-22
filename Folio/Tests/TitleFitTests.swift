@@ -71,6 +71,13 @@ struct TitleFitTests {
         #expect(set.replacingOccurrences(of: "\u{00AD}", with: "") == title)
     }
 
+    @Test("A tile title keeps its size, gives up to 15% for a long word, then holds")
+    func tileShare() {
+        #expect(TitleFit.share(widest: 100, room: 160, floor: TileTitle.floor) == 1)
+        #expect(abs(TitleFit.share(widest: 170, room: 160, floor: TileTitle.floor) - 159.0 / 170) < 1e-9)
+        #expect(TitleFit.share(widest: 300, room: 160, floor: TileTitle.floor) == TileTitle.floor)
+    }
+
     @Test("Every width on the header is one a theme's stylesheet reads")
     func stylesheetsReadTheWidths() throws {
         let css = try ["article", "theme-debug", "theme-gimmick"].map { name in

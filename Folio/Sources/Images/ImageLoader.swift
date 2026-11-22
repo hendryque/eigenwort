@@ -3,7 +3,7 @@ import ImageIO
 
 /// Thread-safe wrapper so the decoded-bitmap cache can be peeked synchronously
 /// from view inits. NSCache is documented thread-safe; UIImage is immutable.
-private final class DecodedImageCache: @unchecked Sendable {
+final class DecodedImageCache: @unchecked Sendable {
     private let cache = NSCache<NSString, UIImage>()
 
     init(totalCostLimit: Int) {

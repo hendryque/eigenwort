@@ -14,23 +14,27 @@ struct TodayView: View {
 
     private var language: String { settingsList.first?.defaultLanguage ?? "en" }
 
-    private let columns = [
-        GridItem(.flexible(), spacing: 0),
-        GridItem(.flexible(), spacing: 0)
-    ]
+    /// The pictures meet edge to edge; a contents page sets its entries apart,
+    /// tops level so the rules over them line up.
+    private var gutter: CGFloat { theme.todayLook == .contents ? 14 : 0 }
+
+    private var columns: [GridItem] {
+        Array(repeating: GridItem(.flexible(), spacing: gutter, alignment: .top), count: 2)
+    }
 
     var body: some View {
         Group {
             if let feed {
                 ScrollView {
-                    LazyVGrid(columns: columns, spacing: 0) {
+                    LazyVGrid(columns: columns, spacing: gutter) {
                         ForEach(Array(tiles(from: feed).enumerated()), id: \.element.id) { index, article in
                             NavigationLink(value: ArticleDestination(title: article.title, language: language)) {
-                                Tile(article: article, tintIndex: index)
+                                Tile(article: article, position: index, language: language)
                             }
                             .buttonStyle(.plain)
                         }
                     }
+                    .padding(gutter)
                 }
                 .scrollContentBackground(.hidden)
             } else if let failure {

@@ -1,9 +1,29 @@
 import SwiftUI
 
+/// One of Today's articles, set as the theme sets its page.
 struct Tile: View {
     @Environment(\.folioTheme) private var theme
     let article: ArticleSummary
-    let tintIndex: Int
+    /// Its place on the page: the grid's tint, the pop art's colour pair, the
+    /// contents page's number.
+    let position: Int
+    let language: String
+
+    var body: some View {
+        switch theme.todayLook {
+        case .grid: PictureTile(article: article, position: position, language: language)
+        case .popArt: PopArtTile(article: article, position: position, language: language)
+        case .contents: ContentsEntry(article: article, position: position, language: language)
+        }
+    }
+}
+
+/// V for Wikipedia's tile: the picture full bleed, the title on a scrim.
+private struct PictureTile: View {
+    @Environment(\.folioTheme) private var theme
+    let article: ArticleSummary
+    let position: Int
+    let language: String
 
     private static let tintColors: [Color] = [
         Color(red: 0.78, green: 0.42, blue: 0.20),  // burnt orange
@@ -16,7 +36,7 @@ struct Tile: View {
         Color(red: 0.52, green: 0.50, blue: 0.28)   // olive
     ]
 
-    private var tint: Color { Self.tintColors[tintIndex % Self.tintColors.count] }
+    private var tint: Color { Self.tintColors[position % Self.tintColors.count] }
 
     private var imageURL: URL? {
         article.imageURL(width: ThumbnailWidth.tile)
@@ -84,8 +104,7 @@ struct Tile: View {
                 .allowsHitTesting(false)
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(article.title.replacingOccurrences(of: "_", with: " "))
-                        .font(theme.font(.display, .medium, size: 22, relativeTo: .title3))
+                    TileTitle(title: article.title, language: language, weight: .medium, size: 22)
                         .tileInk(theme, size: 22)
                         .lineLimit(3)
                         .multilineTextAlignment(.leading)
@@ -124,5 +143,32 @@ private extension View {
         } else {
             foregroundStyle(.white)
         }
+    }
+}
+
+/// A tile's title in the display face. A word too wide for the tile first
+/// gives up to 15% of the size, which keeps the grid even, then hyphenates.
+struct TileTitle: View {
+    @Environment(\.folioTheme) private var theme
+    let title: String
+    let language: String
+    var weight: TypeWeight = .regular
+    let size: Double
+
+    static let floor = 0.85
+
+    /// The width the tile gives the title, not the text's own.
+    @State private var room: CGFloat = 0
+
+    var body: some View {
+        let plain = title.replacingOccurrences(of: "_", with: " ")
+        let full = theme.uiFont(.display, weight, size: size, relativeTo: .title3)
+        let widest = TitleFit.pieces(of: plain).map { TitleFit.width(of: $0, font: full) }.max() ?? 0
+        let fitted = size * TitleFit.share(widest: widest, room: room, floor: Self.floor)
+        let font = theme.uiFont(.display, weight, size: fitted, relativeTo: .title3)
+        Text(TitleFit.hyphenatingTooWide(plain, font: font, room: room, language: language))
+            .font(theme.font(.display, weight, size: fitted, relativeTo: .title3))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { room = $0 }
     }
 }
